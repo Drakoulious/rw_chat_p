@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args) {
         ChatMessagesRequest request = new ChatMessagesRequest(0, "", "");
         try {
-            HttpResponse response = request.sendRequestForMessages();
+            HttpResponse response = request.requestMessages();
             System.out.println(response.getStatusLine());
             Stream.of(response.getAllHeaders()).forEach(System.out::println);
             System.out.println(IOUtils.toString(response.getEntity().getContent()));

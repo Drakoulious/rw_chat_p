@@ -42,7 +42,7 @@ public class ChatMessagesRequest {
         this.cookieValue = cookieValue;
     }
 
-    public HttpResponse sendRequestForMessages() throws IOException {
+    public HttpResponse requestMessages() throws IOException {
         HttpPost httpPost = new HttpPost(CHAT_URL);
         List<BasicNameValuePair> params = Arrays.asList(
                 new BasicNameValuePair("lastMessageId", String.valueOf(lastMessageId)),
