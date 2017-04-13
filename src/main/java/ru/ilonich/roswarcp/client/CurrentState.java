@@ -5,24 +5,94 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Created by Никола on 19.01.2017.
+ * Контейнер для хранения текущих установок парсера:
+ * 1) Логина и пароля для входа за игрока
+ * 2) Кукисов для запроса сообщений из чата залогинненого игрока
+ * 3) ID и тип последнего сообщения для продолжения запросов в чат
  */
-//Контейнер для хранения текущих установок парсера:
-// 1) Логина и пароля для входа за игрока
-// 2) Кукисов для запроса сообщений из чата залогинненого игрока
-// 3) ID и тип последнего сообщения для продолжения запросов в чат
+
 //should be thread-safe
 public final class CurrentState {
     private CurrentState(){
     }
 
-    private static AtomicReference<String> settedLogin = new AtomicReference<>("none");
-    private static AtomicReference<String> settedPassword = new AtomicReference<>("");
-    private static AtomicBoolean isLogged = new AtomicBoolean(false);
-    private static AtomicInteger lastMessageId = new AtomicInteger(0);
-    private static AtomicReference<String> lastMessageType = new AtomicReference<>("");
-    private static AtomicReference<Cookies> cookies = new AtomicReference<>(null);
+    private final static AtomicReference<String> settedLogin = new AtomicReference<>("none");
+    private final static AtomicInteger lastMessageId = new AtomicInteger(0);
+    private final static AtomicReference<String> lastMessageType = new AtomicReference<>("");
+    private final static AtomicReference<Cookies> cookies = new AtomicReference<>(null);
+    private final static AtomicReference<State> status = new AtomicReference<>(State.NO_DATA);
 
+    public enum State{
+        NO_DATA("Логин/пароль не установлены"),
+        BAD_RESULT("Залогинится не получилось"),
+        LOGGED("Логин/пароль установлены, готов к запуску"),
+        ON("Чат прослушивается");
+
+        private String description;
+
+        State(String description){
+            this.description = description;
+        }
+
+        @Override
+        public String toString() {
+            return this.description;
+        }
+    }
+
+    public static State getStatus(){
+        return status.get();
+    }
+
+    static void setStatus(State state){
+        status.set(state);
+    }
+
+    public static boolean tryStart(){
+        return status.compareAndSet(State.LOGGED, State.ON);
+    }
+
+    public static boolean tryStop() {
+        return status.compareAndSet(State.ON, State.LOGGED);
+    }
+
+    public static String getSettedLogin() {
+        return settedLogin.get();
+    }
+
+    public static String setLogin(String login) {
+        return settedLogin.getAndSet(login);
+    }
+
+    public static int getLastMessageId() {
+        return lastMessageId.get();
+    }
+
+    public static boolean setLastMessageId(int oldInt, int newInt) {
+        return lastMessageId.compareAndSet(oldInt, newInt);
+    }
+
+    public static String getLastMessageType() {
+        return lastMessageType.get();
+    }
+
+    public static boolean setLastMessageType(String oldType, String newType) {
+        return lastMessageType.compareAndSet(oldType, newType);
+    }
+
+    public static String getCookiesValue() throws NullPointerException {
+        if (cookies.get() !=null) {
+            return cookies.get().getCookieString();
+        } else {
+            throw new NullPointerException("wtf?");
+        }
+    }
+
+    public static void setCookiesValues(String phpsession, String auth,
+                                        String userid, String player,
+                                        String playerId) {
+        cookies.set(new Cookies(phpsession, auth, userid, player, playerId));
+    }
 
     private static class Cookies {
         String phpSessionId;
@@ -40,7 +110,7 @@ public final class CurrentState {
         }
 
         String getCookieString(){
-            return String.format("a=%s; b=%s; etc...", phpSessionId, authKey);
+            return String.format("PHPSESSID=%s; authkey=%s; userid=%s; player=%s ; player_id=%s", phpSessionId, authKey, userid, player, playerId);
         }
     }
 
