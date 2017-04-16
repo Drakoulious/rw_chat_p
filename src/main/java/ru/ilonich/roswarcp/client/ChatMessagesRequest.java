@@ -44,7 +44,7 @@ public class ChatMessagesRequest {
         this.cookieValue = cookieValue;
     }
 
-    // обработчику ответа советую проверять результат метода на null
+    // обработчику ответа проверять результат метода на null?
     public HttpResponse requestMessages() {
         HttpPost httpPost = new HttpPost(CHAT_URL);
         List<BasicNameValuePair> params = Arrays.asList(

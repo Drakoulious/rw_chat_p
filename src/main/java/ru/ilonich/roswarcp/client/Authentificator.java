@@ -1,6 +1,5 @@
 package ru.ilonich.roswarcp.client;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -43,7 +42,7 @@ public final class Authentificator {
 
     private static final ReentrantLock CLIENT_LOCK = new ReentrantLock();
 
-    public static String authentificate(String login, String password) {
+    public static boolean authentificate(String login, String password) {
         try {
             String phpsessid = getSessionID();
             List<HeaderElement> gettedCookiesList = tryLoginAndGetCookiesList(login, password, phpsessid);
@@ -53,18 +52,19 @@ public final class Authentificator {
             String playerId = parsePlayerIdValue(gettedCookiesList);
             CurrentState.setCookiesValues(phpsessid, authkey, userid, player, playerId);
             CurrentState.setStatus(CurrentState.State.LOGGED);
+            CurrentState.setLogin(login);
         } catch (IOException e){
             //log
             System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            return "fail";
+            return false;
         } catch (Exception e){
             //wtf
             System.out.println(e.getMessage() + "===Unexpected===");
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            return "fail";
+            return false;
         }
-        return "ok";
+        return true;
     }
 
     private static String parsePlayerIdValue(List<HeaderElement> headerElementList) throws IOException {
@@ -109,6 +109,18 @@ public final class Authentificator {
                 .collect(Collectors.toList());
     }
 
+    private static String getSessionID() throws IOException {
+        try {
+            CLIENT_LOCK.lock();
+            HeaderElement[] headerElements = HTTP_CLIENT_MAIN.execute(new HttpGet(ROSWAR_URL))
+                    .getFirstHeader("Set-Cookie") //здесь NPE возможно
+                    .getElements(); //а тута ParseException или пустой массив;
+            return parseSessionID(headerElements);
+        } finally {
+            CLIENT_LOCK.unlock();
+        }
+    }
+
     private static HttpResponse sendPostWithCredentials(String login, String password, String sessionId) throws IOException {
         HttpPost authPost = new HttpPost(ROSWAR_URL);
         authPost.addHeader("Cookie", String.format("PHPSESSID=%s", sessionId));
@@ -120,18 +132,6 @@ public final class Authentificator {
         try {
             CLIENT_LOCK.lock();
             return HTTP_CLIENT_MAIN.execute(authPost);
-        } finally {
-            CLIENT_LOCK.unlock();
-        }
-    }
-
-    private static String getSessionID() throws IOException {
-        try {
-            CLIENT_LOCK.lock();
-            HeaderElement[] headerElements = HTTP_CLIENT_MAIN.execute(new HttpGet(ROSWAR_URL))
-                    .getFirstHeader("Set-Cookie") //здесь NPE возможно
-                    .getElements(); //а тута ParseException или пустой массив;
-            return parseSessionID(headerElements);
         } finally {
             CLIENT_LOCK.unlock();
         }

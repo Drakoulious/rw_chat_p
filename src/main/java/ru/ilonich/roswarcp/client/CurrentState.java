@@ -1,6 +1,5 @@
 package ru.ilonich.roswarcp.client;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -80,7 +79,7 @@ public final class CurrentState {
         return lastMessageType.compareAndSet(oldType, newType);
     }
 
-    public static String getCookiesValue() throws NullPointerException {
+    static String getCookiesValue() throws NullPointerException {
         if (cookies.get() !=null) {
             return cookies.get().getCookieString();
         } else {
@@ -88,9 +87,9 @@ public final class CurrentState {
         }
     }
 
-    public static void setCookiesValues(String phpsession, String auth,
-                                        String userid, String player,
-                                        String playerId) {
+    static void setCookiesValues(String phpsession, String auth,
+                                 String userid, String player,
+                                 String playerId) {
         cookies.set(new Cookies(phpsession, auth, userid, player, playerId));
     }
 

@@ -143,4 +143,25 @@ public class Message {
     public void setRoomId(int roomId) {
         this.roomId = roomId;
     }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "id=" + id +
+                ", playerId=" + playerId +
+                ", time=" + time +
+                ", roomId=" + roomId +
+                ", type='" + type + '\'' +
+                ", channel=" + channel +
+                ", text='" + text + '\'' +
+                ", linkedPlayerId=" + linkedPlayerId +
+                ", nickName='" + nickName + '\'' +
+                ", fraction='" + fraction + '\'' +
+                ", level=" + level +
+                ", clanStatus='" + clanStatus + '\'' +
+                ", clanId=" + clanId +
+                ", flags=" + flags +
+                ", clanName='" + clanName + '\'' +
+                '}';
+    }
 }

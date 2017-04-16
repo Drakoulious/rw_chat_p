@@ -8,7 +8,6 @@ import org.apache.http.HttpResponse;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -17,12 +16,12 @@ import java.util.concurrent.TimeUnit;
  */
 public final class Parser {
 
-    private static ObjectMapper mapper;
+    private static final ObjectMapper mapper;
 
     static {
         mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(Message.class, new MessageDeserializer());
+        module.addDeserializer(List.class, new MessageDeserializer());
         mapper.registerModule(module);
     }
     private Parser(){
@@ -37,6 +36,9 @@ public final class Parser {
                 HttpResponse response = request.requestMessages();
                 String json = IOUtils.toString(response.getEntity().getContent());
                 List<Message> messages = mapper.readValue(json, List.class);
+                if (!messages.isEmpty()){
+                    //TODO
+                }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
             }

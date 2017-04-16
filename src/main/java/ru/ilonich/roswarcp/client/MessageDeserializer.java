@@ -2,18 +2,19 @@ package ru.ilonich.roswarcp.client;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Илоныч on 14.04.2017.
  */
-public class MessageDeserializer extends StdDeserializer<Message> {
+public class MessageDeserializer extends StdDeserializer<List<Message>> {
 
     public MessageDeserializer(){
         this(null);
@@ -24,29 +25,31 @@ public class MessageDeserializer extends StdDeserializer<Message> {
     }
 
     @Override
-    public Message deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
+    public List<Message> deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
         JsonNode resultNode = jp.getCodec().readTree(jp);
-        JsonNode messagesNode = resultNode.get("messages");
-        JsonNode playersNode = resultNode.get("players");
-        Message message = new Message();
-        message.setId(messagesNode.get("id").asInt());
-        message.setPlayerId(messagesNode.get("player_from").asInt());
-        message.setTime(messagesNode.get("time").asLong());
-        message.setRoomId(messagesNode.get("roomid").asInt());
-        message.setType(messagesNode.get("type").asText());
-        message.setChannel(messagesNode.get("channel").asInt());
-        message.setText(messagesNode.get("message").asText()); //переделать под юникод
-        message.setLinkedPlayerId(messagesNode.get("targets").asInt(0));
-        String playerIdNodeName = String.valueOf(message.getPlayerId());
-        message.setNickName(playersNode.get(playerIdNodeName).get("nickname").asText()); //юникод вместо русского
-        message.setFraction(playersNode.get(playerIdNodeName).get("fraction").asText());
-        message.setLevel(playersNode.get(playerIdNodeName).get("level").asInt());
-        message.setClanId(playersNode.get(playerIdNodeName).get("clan_id").asInt());
-        message.setClanStatus(playersNode.get(playerIdNodeName).get("clan_status").asText(""));
-        message.setFlags(playersNode.get(playerIdNodeName).get("flags").asInt());
-        message.setClanName(playersNode.get(playerIdNodeName).get("clan_name").asText()); //юникод десу
-
-
-        return message;
+        JsonNode messagesNode = resultNode.at("/result/messages");
+        JsonNode playersNode = resultNode.at("/result/players");
+        ArrayList<Message> result = new ArrayList<>();
+        for (final JsonNode messageNode : messagesNode) {
+            Message message = new Message();
+            message.setId(messageNode.get("id").asInt());
+            message.setPlayerId(messageNode.get("player_from").asInt());
+            message.setTime(messageNode.get("time").asLong());
+            message.setRoomId(messageNode.get("roomid").asInt());
+            message.setType(messageNode.get("type").asText());
+            message.setChannel(messageNode.get("channel").asInt());
+            message.setText(messageNode.get("message").asText()); //переделать под юникод
+            message.setLinkedPlayerId(messageNode.get("targets").asInt(0));
+            JsonNode playerNode = playersNode.get(String.valueOf(message.getPlayerId()));
+            message.setNickName(playerNode.get("nickname").asText()); //юникод вместо русского
+            message.setFraction(playerNode.get("fraction").asText());
+            message.setLevel(playerNode.get("level").asInt());
+            message.setClanId(playerNode.get("clan_id").asInt());
+            message.setClanStatus(playerNode.get("clan_status").asText(""));
+            message.setFlags(playerNode.get("flags").asInt());
+            message.setClanName(playerNode.get("clan_name").asText()); //юникод десу
+            result.add(message);
+        }
+        return result;
     }
 }
