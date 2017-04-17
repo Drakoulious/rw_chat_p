@@ -79,11 +79,11 @@ public final class CurrentState {
         return lastMessageType.compareAndSet(oldType, newType);
     }
 
-    static String getCookiesValue() throws NullPointerException {
+    static String getCookiesValue() throws Exception {
         if (cookies.get() !=null) {
             return cookies.get().getCookieString();
         } else {
-            throw new NullPointerException("wtf?");
+            throw new Exception("Cookie was not setted");
         }
     }
 

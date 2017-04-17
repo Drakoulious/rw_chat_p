@@ -34,20 +34,20 @@ public class MessageDeserializer extends StdDeserializer<List<Message>> {
             Message message = new Message();
             message.setId(messageNode.get("id").asInt());
             message.setPlayerId(messageNode.get("player_from").asInt());
-            message.setTime(messageNode.get("time").asLong());
+            message.setTime(messageNode.get("time").asLong() * 1000);
             message.setRoomId(messageNode.get("roomid").asInt());
             message.setType(messageNode.get("type").asText());
             message.setChannel(messageNode.get("channel").asInt());
-            message.setText(messageNode.get("message").asText()); //переделать под юникод
+            message.setText(messageNode.get("message").asText());
             message.setLinkedPlayerId(messageNode.get("targets").asInt(0));
             JsonNode playerNode = playersNode.get(String.valueOf(message.getPlayerId()));
-            message.setNickName(playerNode.get("nickname").asText()); //юникод вместо русского
+            message.setNickName(playerNode.get("nickname").asText());
             message.setFraction(playerNode.get("fraction").asText());
             message.setLevel(playerNode.get("level").asInt());
             message.setClanId(playerNode.get("clan_id").asInt());
             message.setClanStatus(playerNode.get("clan_status").asText(""));
             message.setFlags(playerNode.get("flags").asInt());
-            message.setClanName(playerNode.get("clan_name").asText()); //юникод десу
+            message.setClanName(playerNode.get("clan_name").asText());
             result.add(message);
         }
         return result;

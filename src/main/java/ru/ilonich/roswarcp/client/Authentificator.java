@@ -27,6 +27,8 @@ public final class Authentificator {
 
     private static final String ROSWAR_URL = "http://www.roswar.ru";
 
+    private static final BasicNameValuePair LOGIN_ACTION = new BasicNameValuePair("action", "login");
+
     private static final List<BasicHeader> HEADERS = Arrays.asList(
             new BasicHeader("Connection", "keep-alive"),
             new BasicHeader("Upgrade-Insecure-Requests", "1"),
@@ -100,7 +102,7 @@ public final class Authentificator {
     }
 
     /**
-     * Возможны внезапные эксепшены см. {@link #getSessionID()} комменты
+     * Возможные эксепшены см. {@link #getSessionID()} комменты
      */
     private static List<HeaderElement> tryLoginAndGetCookiesList(String login, String password, String sessionId) throws IOException {
         HttpResponse loginAttemptResponse = sendPostWithCredentials(login, password, sessionId);
@@ -124,8 +126,7 @@ public final class Authentificator {
     private static HttpResponse sendPostWithCredentials(String login, String password, String sessionId) throws IOException {
         HttpPost authPost = new HttpPost(ROSWAR_URL);
         authPost.addHeader("Cookie", String.format("PHPSESSID=%s", sessionId));
-        List<BasicNameValuePair> params = Arrays.asList(
-                new BasicNameValuePair("action", "login"),
+        List<BasicNameValuePair> params = Arrays.asList(LOGIN_ACTION,
                 new BasicNameValuePair("email", login),
                 new BasicNameValuePair("password", password));
         authPost.setEntity(new UrlEncodedFormEntity(params));

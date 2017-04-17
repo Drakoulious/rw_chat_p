@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ChatMessagesRequest {
     private static final String CHAT_URL = "http://www.roswar.ru/chat/get-messages/";
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
+    static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     private static final List<BasicHeader> HEADERS = Arrays.asList(
             new BasicHeader("Accept", "application/json, text/javascript, */*; q=0.01"),
             new BasicHeader("Accept-Encoding", "gzip, deflate"),
@@ -38,14 +38,13 @@ public class ChatMessagesRequest {
     private String type;
     private String cookieValue;
 
-    public ChatMessagesRequest(int lastMessageId, String type, String cookieValue){
+    ChatMessagesRequest(int lastMessageId, String type, String cookieValue){
         this.lastMessageId = lastMessageId;
         this.type = type;
         this.cookieValue = cookieValue;
     }
 
-    // обработчику ответа проверять результат метода на null?
-    public HttpResponse requestMessages() {
+    HttpResponse requestMessages() {
         HttpPost httpPost = new HttpPost(CHAT_URL);
         List<BasicNameValuePair> params = Arrays.asList(
                 new BasicNameValuePair("lastMessageId", String.valueOf(lastMessageId)),
@@ -57,6 +56,7 @@ public class ChatMessagesRequest {
             httpPost.setEntity(new UrlEncodedFormEntity(params));
             response = HTTP_CLIENT_CHAT.execute(httpPost);
         } catch (IOException e) {
+            //log
             System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
         } finally {
