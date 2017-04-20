@@ -1,0 +1,28 @@
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns="http://www.springframework.org/schema/security"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <http pattern="/resources/**" security="none"/>
+    <http pattern="/**" use-expressions="true" name="restSecurityFilterChain" create-session="stateless">
+        <http-basic/>
+        <csrf disabled="true"/>
+        <intercept-url pattern="/login" access="permitAll"/>
+        <intercept-url pattern="/console/**" access="isAuthenticated()"/>
+        <form-login login-page="/login" default-target-url="/console"
+                    authentication-failure-url="/login?error=true"
+                    login-processing-url="/spring_security_check"/>
+        <logout logout-success-url="/login"/>
+    </http>
+    <bean class="ru.ilonich.roswarcp.client.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
+    <authentication-manager>
+        <authentication-provider user-service-ref=""><!--TODO-->
+            <password-encoder ref="passwordEncoder"/>
+        </authentication-provider>
+    </authentication-manager>
+
+
+</beans:beans>
