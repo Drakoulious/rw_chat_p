@@ -59,23 +59,23 @@ public final class CurrentState {
         return settedLogin.get();
     }
 
-    public static String setLogin(String login) {
+    static String setLogin(String login) {
         return settedLogin.getAndSet(login);
     }
 
-    public static int getLastMessageId() {
+    static int getLastMessageId() {
         return lastMessageId.get();
     }
 
-    public static boolean setLastMessageId(int oldInt, int newInt) {
+    static boolean setLastMessageId(int oldInt, int newInt) {
         return lastMessageId.compareAndSet(oldInt, newInt);
     }
 
-    public static String getLastMessageType() {
+    static String getLastMessageType() {
         return lastMessageType.get();
     }
 
-    public static boolean setLastMessageType(String oldType, String newType) {
+    static boolean setLastMessageType(String oldType, String newType) {
         return lastMessageType.compareAndSet(oldType, newType);
     }
 

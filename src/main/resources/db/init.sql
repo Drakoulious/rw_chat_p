@@ -1,9 +1,9 @@
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS user_one;
 DROP TABLE IF EXISTS system_messages;
 
-CREATE TABLE user
+CREATE TABLE user_one
 (
-  login VARCHAR NOT NULL,
+  login VARCHAR NOT NULL UNIQUE,
   password VARCHAR NOT NULL
 );
 
@@ -25,3 +25,5 @@ CREATE TABLE system_messages
   clan_name VARCHAR NOT NULL,
   clan_status VARCHAR NOT NULL
 );
+
+INSERT INTO user_one VALUES ('admin', '$2a$10$e0Q7VcxsdILygTuKl7wRHechi2msU8QFQpYXxhpN/c2bXvsNFjiWy');

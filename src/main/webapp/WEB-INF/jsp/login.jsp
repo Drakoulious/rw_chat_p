@@ -3,6 +3,9 @@
 <%@taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
 <form:form role="form" action="spring_security_check" method="post">
     <div>
         <input type="text" placeholder="Email" name='username'>

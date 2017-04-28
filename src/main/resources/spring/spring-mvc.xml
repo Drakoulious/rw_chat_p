@@ -11,7 +11,7 @@
     <mvc:default-servlet-handler/>
     <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled"/>
 
-    <mvc:annotation-driven conversion-service="conversionService">
+    <mvc:annotation-driven>
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.StringHttpMessageConverter">
                 <property name="supportedMediaTypes">
@@ -22,6 +22,7 @@
                 </property>
             </bean>
         </mvc:message-converters>
+        <mvc:async-support default-timeout="30000" task-executor="taskExecutor"/>
     </mvc:annotation-driven>
 
     <context:component-scan base-package="ru.ilonich.**.controller"/>
@@ -32,4 +33,10 @@
           p:prefix="/WEB-INF/jsp/"
           p:suffix=".jsp"/>
 
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="2"/>
+        <property name="maxPoolSize" value="4"/>
+        <property name="queueCapacity" value="8"/>
+        <property name="keepAliveSeconds" value="120"/>
+    </bean>
 </beans>

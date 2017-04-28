@@ -7,7 +7,7 @@
 	http://www.springframework.org/schema/security/spring-security.xsd">
 
     <http pattern="/resources/**" security="none"/>
-    <http pattern="/**" use-expressions="true" name="restSecurityFilterChain" create-session="stateless">
+    <http pattern="/**" use-expressions="true" name="restSecurityFilterChain" create-session="always">
         <http-basic/>
         <csrf disabled="true"/>
         <intercept-url pattern="/login" access="permitAll"/>
@@ -17,9 +17,9 @@
                     login-processing-url="/spring_security_check"/>
         <logout logout-success-url="/login"/>
     </http>
-    <bean class="ru.ilonich.roswarcp.client.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
+    <beans:bean class="ru.ilonich.roswarcp.client.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
     <authentication-manager>
-        <authentication-provider user-service-ref=""><!--TODO-->
+        <authentication-provider user-service-ref="userService"><!--TODO-->
             <password-encoder ref="passwordEncoder"/>
         </authentication-provider>
     </authentication-manager>
