@@ -8,7 +8,7 @@
 </head>
 <form:form role="form" action="spring_security_check" method="post">
     <div>
-        <input type="text" placeholder="Email" name='username'>
+        <input type="text" placeholder="Login" name='username'>
     </div>
     <div>
         <input type="password" placeholder="Password" name='password'>

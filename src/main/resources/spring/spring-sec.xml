@@ -11,7 +11,8 @@
         <http-basic/>
         <csrf disabled="true"/>
         <intercept-url pattern="/login" access="permitAll"/>
-        <intercept-url pattern="/console/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/console" access="isAuthenticated()"/>
+        <intercept-url pattern="/rest/**" access="isAuthenticated()"/>
         <form-login login-page="/login" default-target-url="/console"
                     authentication-failure-url="/login?error=true"
                     login-processing-url="/spring_security_check"/>
@@ -19,7 +20,7 @@
     </http>
     <beans:bean class="ru.ilonich.roswarcp.client.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
     <authentication-manager>
-        <authentication-provider user-service-ref="userService"><!--TODO-->
+        <authentication-provider user-service-ref="userService">
             <password-encoder ref="passwordEncoder"/>
         </authentication-provider>
     </authentication-manager>

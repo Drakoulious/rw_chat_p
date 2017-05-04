@@ -11,8 +11,8 @@ CREATE TABLE system_messages
 (
   id INTEGER PRIMARY KEY,
   player_id INTEGER NOT NULL,
-  _date TIMESTAMP NOT NULL,
-  rood_id INTEGER NOT NULL,
+  date TIMESTAMP NOT NULL,
+  room_id INTEGER NOT NULL,
   type VARCHAR NOT NULL,
   channel INTEGER NOT NULL,
   text VARCHAR NOT NULL,
