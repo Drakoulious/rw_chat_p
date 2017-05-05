@@ -34,7 +34,7 @@ public class ChatMessagesRequest {
             new BasicHeader("X-Requested-With", "XMLHttpRequest")
     );
 
-    static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+    private static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
     private static final CloseableHttpClient HTTP_CLIENT_CHAT = HttpClientBuilder.create().setUserAgent(USER_AGENT)
             .setDefaultHeaders(HEADERS).setConnectionManager(cm).build();
 
@@ -61,9 +61,8 @@ public class ChatMessagesRequest {
             result = getJson(response);
             response.close();
         } catch (IOException e) {
-            //log
-            System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
+            CurrentState.setLogin("none");
         }
         return result;
     }

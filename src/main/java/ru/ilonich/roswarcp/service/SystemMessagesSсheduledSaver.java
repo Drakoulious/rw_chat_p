@@ -22,6 +22,7 @@ public class SystemMessagesSсheduledSaver {
     public void getAndSaveSystemMessages(){
         List<Message> messages = Parser.getMessagesFromChat();
         if (messages != null){
+            messages.forEach(System.out::println);
             messageMapper.insertMessages(messages);
         }
     }

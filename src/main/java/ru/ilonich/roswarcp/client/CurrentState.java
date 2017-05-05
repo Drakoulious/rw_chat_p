@@ -9,13 +9,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * 2) Кукисов для запроса сообщений из чата залогинненого игрока
  * 3) ID и тип последнего сообщения для продолжения запросов в чат
  */
-
-//should be thread-safe
 public final class CurrentState {
+    final static String NO_LOGIN = "none";
     private CurrentState(){
     }
 
-    private final static AtomicReference<String> settedLogin = new AtomicReference<>("none");
+    private final static AtomicReference<String> settedLogin = new AtomicReference<>(NO_LOGIN);
     private final static AtomicInteger lastMessageId = new AtomicInteger(0);
     private final static AtomicReference<String> lastMessageType = new AtomicReference<>("");
     private final static AtomicReference<Cookies> cookies = new AtomicReference<>(null);
@@ -37,6 +36,14 @@ public final class CurrentState {
         public String toString() {
             return this.description;
         }
+    }
+
+    static void skipSettings(){
+        status.set(State.NO_DATA);
+        settedLogin.set(NO_LOGIN);
+        lastMessageId.set(0);
+        lastMessageType.set("");
+        cookies.set(null);
     }
 
     public static State getStatus(){

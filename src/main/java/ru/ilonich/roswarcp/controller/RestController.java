@@ -17,9 +17,8 @@ import java.util.concurrent.Callable;
 public class RestController {
 
     @PostMapping
-    public Callable<Boolean> authentificate(String login, String password){
-        Callable<Boolean> slowLogin = () -> Authentificator.authentificate(login, password);
-        return slowLogin;
+    public Callable<String> authentificate(String login, String password){
+        return () -> Authentificator.authentificate(login, password);
     }
 
     @GetMapping("/player")

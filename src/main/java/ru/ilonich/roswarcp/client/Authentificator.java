@@ -2,17 +2,16 @@ package ru.ilonich.roswarcp.client;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,14 +38,16 @@ public final class Authentificator {
             new BasicHeader("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4"),
             new BasicHeader("If-Modified-Since", ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EEE, d MMM uuuu HH:mm:ss 'GMT'", Locale.ENGLISH))));
 
+    private static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
     private static final CloseableHttpClient HTTP_CLIENT_MAIN = HttpClientBuilder.create()
             .setUserAgent(ChatMessagesRequest.USER_AGENT)
             .setDefaultHeaders(HEADERS)
-            .setConnectionManager(ChatMessagesRequest.cm)
+            .setConnectionManager(cm)
             .build();
 
-    public static boolean authentificate(String login, String password) {
+    public static String authentificate(String login, String password) {
         try {
+            CurrentState.skipSettings();
             String phpsessid = getSessionID();
             List<HeaderElement> gettedCookiesList = tryLoginAndGetCookiesList(login, password, phpsessid);
             String authkey = parseAuthkeyValue(gettedCookiesList);
@@ -57,17 +58,15 @@ public final class Authentificator {
             CurrentState.setStatus(CurrentState.State.LOGGED);
             CurrentState.setLogin(login);
         } catch (IOException e){
-            //log
-            System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            return false;
+            CurrentState.setLogin(CurrentState.NO_LOGIN);
+            return e.getMessage();
         } catch (Exception e){
-            //wtf
-            System.out.println(e.getMessage() + "===Unexpected===");
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            return false;
+            CurrentState.setLogin(CurrentState.NO_LOGIN);
+            return e.getMessage();
         }
-        return true;
+        return "ok";
     }
 
     private static String parsePlayerIdValue(List<HeaderElement> headerElementList) throws IOException {
@@ -102,8 +101,11 @@ public final class Authentificator {
                 .getValue();
     }
 
-    private static String getSessionID() throws IOException {
+    private static String getSessionID() throws Exception {
         CloseableHttpResponse response = HTTP_CLIENT_MAIN.execute(new HttpGet(ROSWAR_URL));
+        if (response.getStatusLine().getStatusCode() != 200){
+            throw new Exception("Roswar.ru unavailable");
+        }
         HeaderElement[] headerElements = response.getFirstHeader("Set-Cookie") //здесь NPE возможно
                 .getElements(); //а тута ParseException или пустой массив;
         response.close();
@@ -111,16 +113,16 @@ public final class Authentificator {
     }
 
     /**
-     * Возможные эксепшены см. {@link #getSessionID()} комменты
+     * Возможны внезапные эксепшены см. {@link #getSessionID()} комменты
      */
-    private static List<HeaderElement> tryLoginAndGetCookiesList(String login, String password, String sessionId) throws IOException {
+    private static List<HeaderElement> tryLoginAndGetCookiesList(String login, String password, String sessionId) throws Exception {
         Header[] cookieHeaders = sendPostWithCredentials(login, password, sessionId);
         return Stream.of(cookieHeaders)
                 .flatMap(h -> Stream.of(h.getElements()))
                 .collect(Collectors.toList());
     }
 
-    private static Header[] sendPostWithCredentials(String login, String password, String sessionId) throws IOException {
+    private static Header[] sendPostWithCredentials(String login, String password, String sessionId) throws Exception {
         HttpPost authPost = new HttpPost(ROSWAR_URL);
         authPost.addHeader("Cookie", String.format("PHPSESSID=%s", sessionId));
         List<BasicNameValuePair> params = Arrays.asList(LOGIN_ACTION,
@@ -128,6 +130,12 @@ public final class Authentificator {
                 new BasicNameValuePair("password", password));
         authPost.setEntity(new UrlEncodedFormEntity(params));
         CloseableHttpResponse response = HTTP_CLIENT_MAIN.execute(authPost);
+        if (response.getStatusLine().getStatusCode() != 302){
+            throw new Exception("Roswar.ru unavailable");
+        }
+        if ("/login/".equals(response.getFirstHeader("Location").getValue())){
+            throw new Exception("Bad credentials");
+        }
         Header[] result = response.getHeaders("Set-Cookie");
         response.close();
         return result;

@@ -21,7 +21,7 @@ public interface MessageMapper {
     "<foreach collection=\"messages\" item=\"mes\" separator=\", \" index=\"index\">",
     "(#{mes.id}, #{mes.playerId}, #{mes.time}, #{mes.roomId}, #{mes.type}, #{mes.channel}, #{mes.text}, #{mes.linkedPlayerId}, #{mes.level}, #{mes.clanId}, #{mes.flags}, #{mes.nickName}, #{mes.fraction}, #{mes.clanName}, #{mes.clanStatus})",
     "</foreach>",
+            "ON CONFLICT (id) DO NOTHING", //FIXED?
     "</script>"})
     void insertMessages(@Param("messages") List<Message> messages);
-    // FIXME: 05.05.2017
 }
