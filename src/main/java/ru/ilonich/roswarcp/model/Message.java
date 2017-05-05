@@ -1,15 +1,35 @@
 package ru.ilonich.roswarcp.model;
 
+import java.sql.Timestamp;
+
 /**
  * Created by Илоныч on 14.04.2017.
  */
 public class Message {
+    public Message(int id, int playerId, Timestamp time, int roomId, String type, int channel, String text, int linkedPlayerId, String nickName, String fraction, int level, String clanStatus, int clanId, int flags, String clanName) {
+        this.id = id;
+        this.playerId = playerId;
+        this.time = time;
+        this.roomId = roomId;
+        this.type = type;
+        this.channel = channel;
+        this.text = text;
+        this.linkedPlayerId = linkedPlayerId;
+        this.nickName = nickName;
+        this.fraction = fraction;
+        this.level = level;
+        this.clanStatus = clanStatus;
+        this.clanId = clanId;
+        this.flags = flags;
+        this.clanName = clanName;
+    }
+
     public Message() {
     }
     //тело
     private int id;
     private int playerId;
-    private long time;
+    private Timestamp time;
     private int roomId;
     private String type;
     private int channel;
@@ -128,11 +148,11 @@ public class Message {
         this.playerId = playerId;
     }
 
-    public long getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(Timestamp time) {
         this.time = time;
     }
 

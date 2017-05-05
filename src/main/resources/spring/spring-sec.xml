@@ -7,7 +7,7 @@
 	http://www.springframework.org/schema/security/spring-security.xsd">
 
     <http pattern="/resources/**" security="none"/>
-    <http pattern="/**" use-expressions="true" name="restSecurityFilterChain" create-session="always">
+    <http pattern="/**" use-expressions="true" name="restSecurityFilterChain">
         <http-basic/>
         <csrf disabled="true"/>
         <intercept-url pattern="/login" access="permitAll"/>

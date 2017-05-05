@@ -19,7 +19,9 @@
           p:driverClassName="org.postgresql.Driver"
           p:url="jdbc:postgresql://localhost:5432/roswar"
           p:username="admin"
-          p:password="test"/>
+          p:password="test"
+
+    />
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
@@ -45,6 +47,7 @@
     </bean>
 
     <import resource="spring-sec.xml"/>
+
     <bean id="userService" class="ru.ilonich.roswarcp.service.UserServiceImpl" />
     <bean id="systemMessagesSсheduledSaver" class="ru.ilonich.roswarcp.service.SystemMessagesSсheduledSaver" />
 </beans>

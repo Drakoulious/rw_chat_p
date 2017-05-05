@@ -27,8 +27,8 @@
     </tr>
     <tr>
         <td>Установленный логин</td>
-        <td class="login"></td>
-        <td><button onclick="getLogin()">Обновить</button></td>
+        <td class="logn"></td>
+        <td><button onclick="getLogn()">Обновить</button></td>
     </tr>
 </table>
 <br>
@@ -39,7 +39,7 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
-        getLogin();
+        getLogn();
         getStatus();
     });
 
@@ -63,12 +63,12 @@
         });
     }
 
-    function getLogin() {
+    function getLogn() {
         $.ajax({
             url: 'rest/player',
             type: 'GET',
             success: function (response) {
-                $('.login').text(response);
+                $('.logn').text(response);
             }
         });
     }
@@ -87,12 +87,10 @@
         $.ajax({
             url: 'rest/',
             type: 'POST',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
             success: function (response) {
-                getLogin();
+                getLogn();
             },
-            data: JSON.stringify({login:$("input[name='login']").val(), password:$("input[name='password']").val()}),
+            data: { login: $("input[name='login']").val(), password:$("input[name='password']").val()},
             beforeSend: function () {
                 $('.status').text('Вход...');
             },

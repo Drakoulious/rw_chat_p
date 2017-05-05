@@ -13,6 +13,9 @@
 
     <mvc:annotation-driven>
         <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes" value="application/json;charset=UTF-8" />
+            </bean>
             <bean class="org.springframework.http.converter.StringHttpMessageConverter">
                 <property name="supportedMediaTypes">
                     <list>
@@ -22,7 +25,7 @@
                 </property>
             </bean>
         </mvc:message-converters>
-        <mvc:async-support default-timeout="30000" task-executor="taskExecutor"/>
+        <mvc:async-support default-timeout="60000" task-executor="taskExecutor"/>
     </mvc:annotation-driven>
 
     <context:component-scan base-package="ru.ilonich.**.controller"/>

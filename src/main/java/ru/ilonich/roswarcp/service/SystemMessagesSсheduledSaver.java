@@ -18,7 +18,7 @@ public class SystemMessagesSсheduledSaver {
     @Autowired
     private MessageMapper messageMapper;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedDelay = 30000)
     public void getAndSaveSystemMessages(){
         List<Message> messages = Parser.getMessagesFromChat();
         if (messages != null){

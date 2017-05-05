@@ -3,16 +3,12 @@ package ru.ilonich.roswarcp.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Илоныч on 13.04.2017.
@@ -35,15 +31,12 @@ public final class Parser {
         if (CurrentState.getStatus() == CurrentState.State.ON) {
             ChatMessagesRequest request = buildChatMessagesRequest();
             if (request != null) {
-                HttpResponse response = request.requestMessages();
-                if (response != null){
-                    String json = getJson(response);
-                    if (json != null){
-                        List<Message> messages = parseJson(json);
-                        if (!messages.isEmpty()){
-                            updateCurrentState(findLastMessage(messages), request);
-                            return findSystemMessages(messages);
-                        }
+                String json = request.requestMessages();
+                if (json != null){
+                    List<Message> messages = parseJson(json);
+                    if (!messages.isEmpty()){
+                        updateCurrentState(findLastMessage(messages), request);
+                        return findSystemMessages(messages);
                     }
                 }
             }
@@ -74,15 +67,6 @@ public final class Parser {
             System.out.println(e.getMessage());
         }
         return Collections.EMPTY_LIST;
-    }
-
-    private static String getJson(HttpResponse response) {
-        try {
-            return IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        return null;
     }
 
     private static ChatMessagesRequest buildChatMessagesRequest() {

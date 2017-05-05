@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class MessageDeserializer extends StdDeserializer<List<Message>> {
             Message message = new Message();
             message.setId(messageNode.get("id").asInt());
             message.setPlayerId(messageNode.get("player_from").asInt());
-            message.setTime(messageNode.get("time").asLong() * 1000);
+            message.setTime(Timestamp.from(Instant.ofEpochMilli(messageNode.get("time").asLong() * 1000)));
             message.setRoomId(messageNode.get("roomid").asInt());
             message.setType(messageNode.get("type").asText());
             message.setChannel(messageNode.get("channel").asInt());

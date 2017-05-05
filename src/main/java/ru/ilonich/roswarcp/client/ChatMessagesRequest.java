@@ -1,17 +1,20 @@
 package ru.ilonich.roswarcp.client;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Никола on 13.01.2017.
@@ -30,9 +33,10 @@ public class ChatMessagesRequest {
             new BasicHeader("Referer", "http://www.roswar.ru/chat/chat/"),
             new BasicHeader("X-Requested-With", "XMLHttpRequest")
     );
-    private static final HttpClient HTTP_CLIENT_CHAT = HttpClientBuilder.create().setUserAgent(USER_AGENT)
-            .setDefaultHeaders(HEADERS).build();
-    private static final ReentrantLock CLIENT_LOCK = new ReentrantLock();
+
+    static final PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+    private static final CloseableHttpClient HTTP_CLIENT_CHAT = HttpClientBuilder.create().setUserAgent(USER_AGENT)
+            .setDefaultHeaders(HEADERS).setConnectionManager(cm).build();
 
     private int lastMessageId;
     private String type;
@@ -44,25 +48,24 @@ public class ChatMessagesRequest {
         this.cookieValue = cookieValue;
     }
 
-    HttpResponse requestMessages() {
+    String requestMessages() {
         HttpPost httpPost = new HttpPost(CHAT_URL);
         List<BasicNameValuePair> params = Arrays.asList(
                 new BasicNameValuePair("lastMessageId", String.valueOf(lastMessageId)),
                 new BasicNameValuePair("type", type));
         httpPost.setHeader("Cookie", cookieValue);
-        HttpResponse response = null;
+        String result = null;
         try {
-            CLIENT_LOCK.lock();
             httpPost.setEntity(new UrlEncodedFormEntity(params));
-            response = HTTP_CLIENT_CHAT.execute(httpPost);
+            CloseableHttpResponse response = HTTP_CLIENT_CHAT.execute(httpPost);
+            result = getJson(response);
+            response.close();
         } catch (IOException e) {
             //log
             System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-        } finally {
-            CLIENT_LOCK.unlock();
         }
-        return response;
+        return result;
     }
 
     public int getLastMessageId() {
@@ -71,5 +74,9 @@ public class ChatMessagesRequest {
 
     public String getType() {
         return type;
+    }
+
+    private static String getJson(HttpResponse response) throws IOException {
+        return IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
     }
 }

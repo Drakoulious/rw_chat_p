@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.ilonich.roswarcp.client.Authentificator;
 import ru.ilonich.roswarcp.client.CurrentState;
-import ru.ilonich.roswarcp.controller.dto.LoginPassPair;
 
 import java.util.concurrent.Callable;
 
@@ -17,10 +16,9 @@ import java.util.concurrent.Callable;
 @RequestMapping(value = "/rest", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestController {
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Callable<Boolean> authentificate(LoginPassPair pair){
-        System.out.println(pair);
-        Callable<Boolean> slowLogin = () -> Authentificator.authentificate(pair.getLogin(), pair.getPassword());
+    @PostMapping
+    public Callable<Boolean> authentificate(String login, String password){
+        Callable<Boolean> slowLogin = () -> Authentificator.authentificate(login, password);
         return slowLogin;
     }
 
