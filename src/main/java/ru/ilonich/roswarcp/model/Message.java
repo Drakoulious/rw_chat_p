@@ -26,7 +26,6 @@ public class Message {
 
     public Message() {
     }
-    //тело
     private int id;
     private int playerId;
     private Timestamp time;
@@ -35,7 +34,6 @@ public class Message {
     private int channel;
     private String text;
     private int linkedPlayerId;
-    //игрок
     private String nickName;
     private String fraction;
     private int level;

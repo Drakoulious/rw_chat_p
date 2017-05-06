@@ -5,8 +5,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Контейнер для хранения текущих установок парсера:
- * 1) Логина и пароля для входа за игрока
- * 2) Кукисов для запроса сообщений из чата залогинненого игрока
+ * 1) Логина игрока
+ * 2) Кукисов c аутентификацией для запроса сообщений из чата за игрока
  * 3) ID и тип последнего сообщения для продолжения запросов в чат
  */
 public final class CurrentState {
@@ -17,8 +17,17 @@ public final class CurrentState {
     private final static AtomicReference<String> settedLogin = new AtomicReference<>(NO_LOGIN);
     private final static AtomicInteger lastMessageId = new AtomicInteger(0);
     private final static AtomicReference<String> lastMessageType = new AtomicReference<>("");
+    private final static AtomicReference<String> phpSessionId = new AtomicReference<>(null);
     private final static AtomicReference<Cookies> cookies = new AtomicReference<>(null);
     private final static AtomicReference<State> status = new AtomicReference<>(State.NO_DATA);
+
+    static void setPhpSessionId(String sid) {
+        phpSessionId.set(sid);
+    }
+
+    static String getPhpSessionId() {
+        return phpSessionId.get();
+    }
 
     public enum State{
         NO_DATA("Логин/пароль не установлены"),
@@ -94,10 +103,10 @@ public final class CurrentState {
         }
     }
 
-    static void setCookiesValues(String phpsession, String auth,
+    static void setCookiesValues(String auth,
                                  String userid, String player,
                                  String playerId) {
-        cookies.set(new Cookies(phpsession, auth, userid, player, playerId));
+        cookies.set(new Cookies(getPhpSessionId(), auth, userid, player, playerId));
     }
 
     private static class Cookies {

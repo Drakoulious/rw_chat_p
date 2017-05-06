@@ -21,8 +21,7 @@ public class SystemMessagesSсheduledSaver {
     @Scheduled(fixedDelay = 30000)
     public void getAndSaveSystemMessages(){
         List<Message> messages = Parser.getMessagesFromChat();
-        if (messages != null){
-            messages.forEach(System.out::println);
+        if (messages != null && !messages.isEmpty()){
             messageMapper.insertMessages(messages);
         }
     }

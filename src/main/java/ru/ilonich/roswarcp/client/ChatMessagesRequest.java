@@ -62,7 +62,7 @@ public class ChatMessagesRequest {
             response.close();
         } catch (IOException e) {
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            CurrentState.setLogin("none");
+            CurrentState.setLogin(CurrentState.NO_LOGIN);
         }
         return result;
     }

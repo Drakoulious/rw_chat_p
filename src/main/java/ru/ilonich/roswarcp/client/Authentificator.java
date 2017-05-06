@@ -48,13 +48,15 @@ public final class Authentificator {
     public static String authentificate(String login, String password) {
         try {
             CurrentState.skipSettings();
-            String phpsessid = getSessionID();
-            List<HeaderElement> gettedCookiesList = tryLoginAndGetCookiesList(login, password, phpsessid);
+            if (CurrentState.getPhpSessionId() == null){
+                CurrentState.setPhpSessionId(getSessionID());
+            }
+            List<HeaderElement> gettedCookiesList = tryLoginAndGetCookiesList(login, password);
             String authkey = parseAuthkeyValue(gettedCookiesList);
             String userid = parseUserIdValue(gettedCookiesList);
             String player = parsePlayerValue(gettedCookiesList);
             String playerId = parsePlayerIdValue(gettedCookiesList);
-            CurrentState.setCookiesValues(phpsessid, authkey, userid, player, playerId);
+            CurrentState.setCookiesValues(authkey, userid, player, playerId);
             CurrentState.setStatus(CurrentState.State.LOGGED);
             CurrentState.setLogin(login);
         } catch (IOException e){
@@ -115,21 +117,21 @@ public final class Authentificator {
     /**
      * Возможны внезапные эксепшены см. {@link #getSessionID()} комменты
      */
-    private static List<HeaderElement> tryLoginAndGetCookiesList(String login, String password, String sessionId) throws Exception {
-        Header[] cookieHeaders = sendPostWithCredentials(login, password, sessionId);
+    private static List<HeaderElement> tryLoginAndGetCookiesList(String login, String password) throws Exception {
+        Header[] cookieHeaders = sendPostWithCredentials(login, password);
         return Stream.of(cookieHeaders)
                 .flatMap(h -> Stream.of(h.getElements()))
                 .collect(Collectors.toList());
     }
 
-    private static Header[] sendPostWithCredentials(String login, String password, String sessionId) throws Exception {
+    private static Header[] sendPostWithCredentials(String login, String password) throws Exception {
         HttpPost authPost = new HttpPost(ROSWAR_URL);
-        authPost.addHeader("Cookie", String.format("PHPSESSID=%s", sessionId));
+        authPost.addHeader("Cookie", String.format("PHPSESSID=%s", CurrentState.getPhpSessionId()));
         List<BasicNameValuePair> params = Arrays.asList(LOGIN_ACTION,
                 new BasicNameValuePair("email", login),
                 new BasicNameValuePair("password", password));
         authPost.setEntity(new UrlEncodedFormEntity(params));
-        CloseableHttpResponse response = HTTP_CLIENT_MAIN.execute(authPost);
+        CloseableHttpResponse response = HTTP_CLIENT_MAIN.execute(authPost); //FIXME after several attempts to login with bad credentials it will stuck without exception (without timeout)
         if (response.getStatusLine().getStatusCode() != 302){
             throw new Exception("Roswar.ru unavailable");
         }

@@ -3,11 +3,15 @@ package ru.ilonich.roswarcp.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -17,6 +21,25 @@ public final class Parser {
 
     private static final ObjectMapper mapper;
     private static final String SYSTEM_TYPE = "system";
+    private static final Function<Message, Message> reformatSystemMessage = (message -> {
+        Document doc = Jsoup.parse(message.getText());
+        if (!doc.select("span").isEmpty()) {
+            message.setFraction(doc.select("span.user i").attr("title"));
+            Elements clanSpan = doc.select("span.user a[href^=/clan/]");
+            if (!clanSpan.isEmpty()) {
+                message.setClanId(Integer.valueOf(clanSpan.attr("href").replaceAll("/", "").substring(4)));
+                message.setClanName(doc.select("img.clan-icon").attr("title"));
+            }
+            message.setNickName(doc.select("span.user a[href^=/player/]").text());
+            message.setLinkedPlayerId(message.getPlayerId()); //газетчик делает объявления обычно
+            message.setPlayerId(Integer.valueOf(doc.select("span.user a[href^=/player/]").attr("href").replaceAll("/", "").substring(6)));
+            message.setLevel(Integer.valueOf(doc.select("span.level").text().replaceAll("[^\\d]", "")));
+            message.setClanStatus(doc.select("div.objects div.padding img[src$=.png").attr("alt")); // предмет который получает игрок (лень переименовывать в бд столбец и классе)
+            message.setFlags(Integer.valueOf(doc.select("div.count").text().substring(1))); // количество предметов (лень переименовывать в бд столбец и классе)
+            message.setText(doc.text());
+        }
+        return message;
+    });
 
     static {
         mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -47,8 +70,8 @@ public final class Parser {
     private static List<Message> findSystemMessages(List<Message> messages) {
         return messages.stream()
                 .filter( m -> m.getType().equals(SYSTEM_TYPE))
+                .map(reformatSystemMessage)
                 .collect(Collectors.toList());
-        //здеся можно распарсить html системных сообщений
     }
 
     private static void updateCurrentState(Message lastMessage, ChatMessagesRequest pastRequest) {
@@ -76,7 +99,7 @@ public final class Parser {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            CurrentState.setLogin("none");
+            CurrentState.setLogin(CurrentState.NO_LOGIN);
         }
         return null;
     }
