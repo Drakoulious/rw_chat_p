@@ -23,7 +23,7 @@
     <bean id="dataSource"
           class="org.apache.tomcat.jdbc.pool.DataSource"
           p:driverClassName="org.postgresql.Driver"
-          p:url="#{ 'jdbc:postgres://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }"
+          p:url="#{ 'jdbc:postgresql://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }"
           p:username="#{dbUrl.getUserInfo().split(':')[0]}"
           p:password="#{dbUrl.getUserInfo().split(':')[1]}"
     />
