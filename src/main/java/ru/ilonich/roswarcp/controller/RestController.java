@@ -1,11 +1,14 @@
 package ru.ilonich.roswarcp.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.ilonich.roswarcp.client.Authentificator;
 import ru.ilonich.roswarcp.client.CurrentState;
+import ru.ilonich.roswarcp.repo.RawSqlExecutor;
 
 import java.util.concurrent.Callable;
 
@@ -15,6 +18,8 @@ import java.util.concurrent.Callable;
 @org.springframework.web.bind.annotation.RestController
 @RequestMapping(value = "/rest", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestController {
+    @Autowired
+    RawSqlExecutor rawSqlExecutor;
 
     @PostMapping
     public Callable<String> authentificate(String login, String password){
@@ -41,6 +46,14 @@ public class RestController {
     public CurrentState.State stopMessagesRequests(){
         CurrentState.tryStop();
         return CurrentState.getStatus();
+    }
+
+    @PostMapping("/sql")
+    public String execSql(String sql){
+        System.out.println(sql);
+        String re = rawSqlExecutor.executeDirectQuery(sql);
+        System.out.println(re);
+        return re;
     }
 
 }

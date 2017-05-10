@@ -6,7 +6,7 @@ import java.sql.Timestamp;
  * Created by Илоныч on 14.04.2017.
  */
 public class Message {
-    public Message(int id, int playerId, Timestamp time, int roomId, String type, int channel, String text, int linkedPlayerId, String nickName, String fraction, int level, String clanStatus, int clanId, int flags, String clanName) {
+    public Message(int id, int playerId, Timestamp time, int roomId, String type, int channel, String text, int linkedPlayerId, String nickName, String fraction, int level, String itemName, int clanId, int itemCount, String clanName) {
         this.id = id;
         this.playerId = playerId;
         this.time = time;
@@ -18,9 +18,9 @@ public class Message {
         this.nickName = nickName;
         this.fraction = fraction;
         this.level = level;
-        this.clanStatus = clanStatus;
+        this.itemName = itemName;
         this.clanId = clanId;
-        this.flags = flags;
+        this.itemCount = itemCount;
         this.clanName = clanName;
     }
 
@@ -37,9 +37,9 @@ public class Message {
     private String nickName;
     private String fraction;
     private int level;
-    private String clanStatus;
+    private String itemName;
     private int clanId;
-    private int flags;
+    private int itemCount;
     private String clanName;
 
     public String getNickName() {
@@ -50,12 +50,12 @@ public class Message {
         this.nickName = nickName;
     }
 
-    public String getClanStatus() {
-        return clanStatus;
+    public String getItemName() {
+        return itemName;
     }
 
-    public void setClanStatus(String clanStatus) {
-        this.clanStatus = clanStatus;
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     public int getClanId() {
@@ -66,12 +66,12 @@ public class Message {
         this.clanId = clanId;
     }
 
-    public int getFlags() {
-        return flags;
+    public int getItemCount() {
+        return itemCount;
     }
 
-    public void setFlags(int flags) {
-        this.flags = flags;
+    public void setItemCount(int itemCount) {
+        this.itemCount = itemCount;
     }
 
     public String getClanName() {
@@ -176,9 +176,9 @@ public class Message {
                 ", nickName='" + nickName + '\'' +
                 ", fraction='" + fraction + '\'' +
                 ", level=" + level +
-                ", clanStatus='" + clanStatus + '\'' +
+                ", itemName='" + itemName + '\'' +
                 ", clanId=" + clanId +
-                ", flags=" + flags +
+                ", itemCount=" + itemCount +
                 ", clanName='" + clanName + '\'' +
                 '}';
     }

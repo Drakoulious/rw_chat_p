@@ -1,5 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:tx="http://www.springframework.org/schema/tx"
@@ -7,6 +8,7 @@
        xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd
+       http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
@@ -14,14 +16,21 @@
     <tx:annotation-driven/>
     <task:annotation-driven/>
 
+    <bean class="java.net.URI" id="dbUrl">
+        <constructor-arg value="#{environment.getProperty('DATABASE_URL')}"/>
+    </bean>
+    <!--dokkur example: postgres://login:password@hostname:5432/databasename-->
     <bean id="dataSource"
           class="org.apache.tomcat.jdbc.pool.DataSource"
           p:driverClassName="org.postgresql.Driver"
-          p:url="jdbc:postgresql://localhost:5432/roswar"
-          p:username="admin"
-          p:password="test"
-
+          p:url="#{ 'jdbc:postgres://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }"
+          p:username="#{dbUrl.getUserInfo().split(':')[0]}"
+          p:password="#{dbUrl.getUserInfo().split(':')[1]}"
     />
+
+    <jdbc:initialize-database data-source="dataSource" enabled="true">
+        <jdbc:script encoding="utf-8" location="classpath:db/init.sql"/>
+    </jdbc:initialize-database>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
@@ -49,5 +58,6 @@
     <import resource="spring-sec.xml"/>
 
     <bean id="userService" class="ru.ilonich.roswarcp.service.UserServiceImpl" />
+    <bean id="rawSqlExecutor" class="ru.ilonich.roswarcp.repo.RawSqlExecutorImpl" />
     <bean id="systemMessagesSсheduledSaver" class="ru.ilonich.roswarcp.service.SystemMessagesSсheduledSaver" />
 </beans>
