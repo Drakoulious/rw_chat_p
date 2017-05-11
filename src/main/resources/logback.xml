@@ -1,6 +1,6 @@
 <configuration debug="true" packagingData="true">
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>/logger/roswar.log</file>
+        <file>./logger/roswar.log</file>
         <append>false</append>
         <!-- set immediateFlush to false for much higher logging throughput -->
         <immediateFlush>false</immediateFlush>
