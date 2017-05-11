@@ -50,10 +50,7 @@ public class RestController {
 
     @PostMapping("/sql")
     public String execSql(String sql){
-        System.out.println(sql);
-        String re = rawSqlExecutor.executeDirectQuery(sql);
-        System.out.println(re);
-        return re;
+        return rawSqlExecutor.executeDirectQuery(sql);
     }
 
 }
