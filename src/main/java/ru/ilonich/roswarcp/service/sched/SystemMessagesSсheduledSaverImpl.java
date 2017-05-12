@@ -1,4 +1,4 @@
-package ru.ilonich.roswarcp.service;
+package ru.ilonich.roswarcp.service.sched;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,10 +10,10 @@ import ru.ilonich.roswarcp.repo.MessageMapper;
 import java.util.List;
 
 /**
- * Created by Никола on 03.05.2017.
+ * Created by Илоныч on 12.05.2017.
  */
 @Service
-public class SystemMessagesSсheduledSaver {
+public class SystemMessagesSсheduledSaverImpl implements SystemMessagesSсheduledSaver {
 
     @Autowired
     private MessageMapper messageMapper;
