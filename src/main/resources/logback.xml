@@ -9,7 +9,13 @@
         </encoder>
     </appender>
 
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{dd MMM;HH:mm:ss} %level %logger{35} | %msg | %ex{full} [%thread]%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="DEBUG">
-        <appender-ref ref="FILE" />
+        <appender-ref ref="CONSOLE" />
     </root>
 </configuration>
