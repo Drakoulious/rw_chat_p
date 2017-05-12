@@ -14,7 +14,11 @@
 
     <context:annotation-config/>
     <tx:annotation-driven/>
-    <task:annotation-driven/>
+    <task:annotation-driven executor="myExecutor"
+                            scheduler="myScheduler" />
+    <task:executor id="myExecutor" pool-size="2" />
+    <task:scheduler id="myScheduler" pool-size="2" />
+
 
     <bean class="java.net.URI" id="dbUrl">
         <constructor-arg value="#{environment.getProperty('DATABASE_URL')}"/>
@@ -55,9 +59,8 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
-    <import resource="spring-sec.xml"/>
+    <context:component-scan base-package="ru.ilonich.roswarcp.service" />
+    <context:component-scan base-package="ru.ilonich.roswarcp.repo" />
 
-    <bean id="userService" class="ru.ilonich.roswarcp.service.UserServiceImpl" />
-    <bean id="rawSqlExecutor" class="ru.ilonich.roswarcp.repo.RawSqlExecutorImpl" />
-    <bean id="systemMessagesSсheduledSaver" class="ru.ilonich.roswarcp.service.SystemMessagesSсheduledSaver" />
+    <import resource="spring-sec.xml"/>
 </beans>
