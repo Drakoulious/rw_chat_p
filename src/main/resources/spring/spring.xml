@@ -61,6 +61,7 @@
 
     <context:component-scan base-package="ru.ilonich.roswarcp.service" />
     <context:component-scan base-package="ru.ilonich.roswarcp.repo" />
+    <context:component-scan base-package="ru.ilonich.roswarcp.tasks" />
 
     <import resource="spring-sec.xml"/>
 </beans>

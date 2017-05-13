@@ -1,4 +1,4 @@
-package ru.ilonich.roswarcp.service.sched;
+package ru.ilonich.roswarcp.tasks;
 
 public interface SystemMessagesSсheduledSaver {
 
