@@ -34,8 +34,8 @@ public final class Parser {
             message.setLinkedPlayerId(message.getPlayerId()); //газетчик делает объявления обычно
             message.setPlayerId(Integer.valueOf(doc.select("span.user a[href^=/player/]").attr("href").replaceAll("/", "").substring(6)));
             message.setLevel(Integer.valueOf(doc.select("span.level").text().replaceAll("[^\\d]", "")));
-            message.setClanStatus(doc.select("div.objects div.padding img[src$=.png").attr("alt")); // предмет который получает игрок (лень переименовывать в бд столбец и классе)
-            message.setFlags(Integer.valueOf(doc.select("div.count").text().substring(1))); // количество предметов (лень переименовывать в бд столбец и классе)
+            message.setItemName(doc.select("div.objects div.padding img[src$=.png").attr("alt"));
+            message.setItemCount(Integer.valueOf(doc.select("div.count").text().substring(1)));
             message.setText(doc.text());
         }
         return message;

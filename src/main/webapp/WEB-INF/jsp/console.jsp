@@ -34,8 +34,31 @@
 <br>
 <button onclick="tryOn()">Вкл парсер</button>
 <button onclick="tryOff()">Выкл парсер</button>
+
+<br>
+<br>
+<br><label>SQL-команда:</label>
+<input type="text" placeholder="SQL" value="SELECT * FROM system_messages" name="sql">
+<button onclick="sendSql()">Выполнить</button>
+
+<br>
+Вывод:
+<hr>
+<pre><span class="db_output"></span></pre>
 </body>
-<script type="text/javascript" src="resources/jquery-3.2.1.min.js"></script>
+<style>
+    input[type='text'] {
+        width: 50%;
+        height: 50px;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        resize: none;
+    }
+</style>
+<script type="text/javascript" src="resources/jquery/3.2.0/jquery.min.js"></script>
 <script type="text/javascript">
 
     $(document).ready(function() {
@@ -97,6 +120,17 @@
             complete: function () {
                 getStatus();
             }
+        });
+    }
+
+    function sendSql() {
+        $.ajax({
+            url: 'rest/sql',
+            type: 'POST',
+            success: function (response) {
+                $("span.db_output").text(response);
+            },
+            data: { sql : $("input[name='sql']").val() }
         });
     }
 </script>

@@ -1,0 +1,21 @@
+<configuration packagingData="true">
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>app/roswar.log</file>
+        <append>false</append>
+        <!-- set immediateFlush to false for much higher logging throughput -->
+        <immediateFlush>true</immediateFlush>
+        <encoder>
+            <pattern>%date{dd MMM;HH:mm:ss} %level %logger{35} | %msg | %ex{full} [%thread]%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{dd MMM;HH:mm:ss} %level %logger{35} | %msg | %ex{full} [%thread]%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>

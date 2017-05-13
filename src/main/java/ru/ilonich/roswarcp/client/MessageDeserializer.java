@@ -47,8 +47,8 @@ public class MessageDeserializer extends StdDeserializer<List<Message>> {
             message.setFraction(playerNode.get("fraction").asText());
             message.setLevel(playerNode.get("level").asInt());
             message.setClanId(playerNode.get("clan_id").asInt());
-            message.setClanStatus(playerNode.get("clan_status").asText(""));
-            message.setFlags(playerNode.get("flags").asInt());
+            message.setItemName(playerNode.get("clan_status").asText(""));
+            message.setItemCount(playerNode.get("flags").asInt());
             message.setClanName(playerNode.get("clan_name").asText());
             result.add(message);
         }
