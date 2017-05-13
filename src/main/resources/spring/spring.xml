@@ -14,11 +14,6 @@
 
     <context:annotation-config/>
     <tx:annotation-driven/>
-    <task:annotation-driven executor="myExecutor"
-                            scheduler="myScheduler" />
-    <task:executor id="myExecutor" pool-size="2" />
-    <task:scheduler id="myScheduler" pool-size="2" />
-
 
     <bean class="java.net.URI" id="dbUrl">
         <constructor-arg value="#{environment.getProperty('DATABASE_URL')}"/>
@@ -61,7 +56,13 @@
 
     <context:component-scan base-package="ru.ilonich.roswarcp.service" />
     <context:component-scan base-package="ru.ilonich.roswarcp.repo" />
-    <context:component-scan base-package="ru.ilonich.roswarcp.tasks" />
 
-    <import resource="spring-sec.xml"/>
+    <bean id="messageSaver" class="ru.ilonich.roswarcp.tasks.SystemMessagesSсheduledSaver">
+        <constructor-arg ref="messageMapper" />
+    </bean>
+
+    <task:scheduled-tasks scheduler="myScheduler">
+        <task:scheduled ref="messageSaver" method="getAndSaveSystemMessages" fixed-delay="30000"/>
+    </task:scheduled-tasks>
+    <task:scheduler id="myScheduler" pool-size="2" />
 </beans>
