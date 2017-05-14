@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Created by Илоныч on 13.04.2017.
- */
 public final class Parser {
 
     private static final ObjectMapper mapper;

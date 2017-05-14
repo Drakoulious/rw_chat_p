@@ -13,9 +13,6 @@ import ru.ilonich.roswarcp.repo.UserMapper;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Created by Илоныч on 28.04.2017.
- */
 @Service("userService")
 public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired

@@ -1,11 +1,8 @@
 package ru.ilonich.roswarcp.model;
 
-/**
- * Created by Илоныч on 28.04.2017.
- */
 public class User {
-    String login;
-    String password;
+    private String login;
+    private String password;
 
     public String getLogin() {
         return login;

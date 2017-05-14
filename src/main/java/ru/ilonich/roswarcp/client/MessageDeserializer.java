@@ -13,16 +13,14 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Илоныч on 14.04.2017.
- */
-public class MessageDeserializer extends StdDeserializer<List<Message>> {
 
-    public MessageDeserializer(){
+class MessageDeserializer extends StdDeserializer<List<Message>> {
+
+    MessageDeserializer(){
         this(null);
     }
 
-    public MessageDeserializer(Class<?> vc) {
+    MessageDeserializer(Class<?> vc) {
         super(vc);
     }
 

@@ -8,9 +8,6 @@ import ru.ilonich.roswarcp.model.Message;
 import java.sql.Timestamp;
 import java.util.List;
 
-/**
- * Created by Илоныч on 28.04.2017.
- */
 @Transactional(readOnly = true)
 public interface MessageMapper {
 
@@ -22,11 +19,11 @@ public interface MessageMapper {
     "<foreach collection=\"messages\" item=\"mes\" separator=\", \" index=\"index\">",
     "(#{mes.id}, #{mes.playerId}, #{mes.time}, #{mes.roomId}, #{mes.type}, #{mes.channel}, #{mes.text}, #{mes.linkedPlayerId}, #{mes.level}, #{mes.clanId}, #{mes.itemCount}, #{mes.nickName}, #{mes.fraction}, #{mes.clanName}, #{mes.itemName})",
     "</foreach>",
-            "ON CONFLICT (id) DO NOTHING", //FIXED?
+            "ON CONFLICT (id) DO NOTHING",
     "</script>"})
     void insertMessages(@Param("messages") List<Message> messages);
 
-    @Select("SELECT * FROM system_messages")
+    @Select("SELECT * FROM system_messages ORDER BY system_messages.date DESC")
     @Results({
             @Result(property = "id", column = "id", id = true, javaType = Integer.class, jdbcType = JdbcType.INTEGER),
             @Result(property = "playerId", column = "player_id", javaType = Integer.class, jdbcType = JdbcType.INTEGER),

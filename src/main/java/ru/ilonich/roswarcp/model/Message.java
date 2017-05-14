@@ -2,9 +2,6 @@ package ru.ilonich.roswarcp.model;
 
 import java.sql.Timestamp;
 
-/**
- * Created by Илоныч on 14.04.2017.
- */
 public class Message {
     public Message(int id, int playerId, Timestamp time, int roomId, String type, int channel, String text, int linkedPlayerId, String nickName, String fraction, int level, String itemName, int clanId, int itemCount, String clanName) {
         this.id = id;

@@ -5,9 +5,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.roswarcp.model.User;
 
-/**
- * Created by Илоныч on 27.04.2017.
- */
 @Repository
 @Transactional(readOnly = true)
 public interface UserMapper {

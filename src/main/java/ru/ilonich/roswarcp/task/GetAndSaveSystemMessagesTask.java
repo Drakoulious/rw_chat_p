@@ -6,9 +6,6 @@ import ru.ilonich.roswarcp.repo.MessageMapper;
 
 import java.util.List;
 
-/**
- * Created by Никола on 13.05.2017.
- */
 public class GetAndSaveSystemMessagesTask {
 
     private MessageMapper messageMapper;

@@ -8,7 +8,7 @@
 </head>
 
 <body>
-<form:form class="navbar-form" action="logout" method="post">
+<form:form action="logout" method="post">
     <sec:authorize access="isAuthenticated()">
         <input type="submit" value="Logout">
     </sec:authorize>
@@ -34,7 +34,8 @@
 <br>
 <button onclick="tryOn()">Вкл парсер</button>
 <button onclick="tryOff()">Выкл парсер</button>
-
+<br>
+<a href="console/messages.xls">Скачать</a>
 <br>
 <br>
 <br><label>SQL-команда:</label>
@@ -68,7 +69,7 @@
 
     function tryOn() {
         $.ajax({
-            url: 'rest/on',
+            url: 'ajax/on',
             type: 'GET',
             success: function (response) {
                 $('.status').text(response);
@@ -78,7 +79,7 @@
 
     function tryOff() {
         $.ajax({
-            url: 'rest/off',
+            url: 'ajax/off',
             type: 'GET',
             success: function (response) {
                 $('.status').text(response);
@@ -88,7 +89,7 @@
 
     function getLogn() {
         $.ajax({
-            url: 'rest/player',
+            url: 'ajax/player',
             type: 'GET',
             success: function (response) {
                 $('.logn').text(response);
@@ -98,7 +99,7 @@
 
     function getStatus() {
         $.ajax({
-            url: 'rest/status',
+            url: 'ajax/status',
             type: 'GET',
             success: function (response) {
                 $('.status').text(response);
@@ -108,7 +109,7 @@
 
     function sendAuth() {
         $.ajax({
-            url: 'rest/',
+            url: 'ajax/',
             type: 'POST',
             success: function (response) {
                 getLogn();
@@ -125,7 +126,7 @@
 
     function sendSql() {
         $.ajax({
-            url: 'rest/sql',
+            url: 'ajax/sql',
             type: 'POST',
             success: function (response) {
                 $("span.db_output").text(response);

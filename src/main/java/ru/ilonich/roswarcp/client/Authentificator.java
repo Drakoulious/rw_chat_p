@@ -21,9 +21,6 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Created by Никола on 13.01.2017.
- */
 public final class Authentificator {
 
     private static final String ROSWAR_URL = "http://www.roswar.ru";

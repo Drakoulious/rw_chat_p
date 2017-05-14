@@ -6,9 +6,6 @@ import org.springframework.stereotype.Component;
 import javax.sql.DataSource;
 import java.sql.*;
 
-/**
- * Created by Никола on 09.05.2017.
- */
 @Component
 public class RawSqlExecutorImpl implements RawSqlExecutor {
     @Autowired

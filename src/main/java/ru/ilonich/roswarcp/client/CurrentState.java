@@ -3,12 +3,6 @@ package ru.ilonich.roswarcp.client;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Контейнер для хранения текущих установок парсера:
- * 1) Логина игрока
- * 2) Кукисов c аутентификацией для запроса сообщений из чата за игрока
- * 3) ID и тип последнего сообщения для продолжения запросов в чат
- */
 public final class CurrentState {
     final static String NO_LOGIN = "none";
     private CurrentState(){

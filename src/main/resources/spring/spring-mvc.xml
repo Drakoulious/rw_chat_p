@@ -32,7 +32,12 @@
 
     <mvc:resources mapping="/resources/**" location="classpath:/META-INF/resources/webjars/"/>
 
+    <bean class="org.springframework.web.servlet.view.ResourceBundleViewResolver"
+          p:order="1"
+          p:basename="excel.views" />
+
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+          p:order="2"
           p:prefix="/WEB-INF/jsp/"
           p:suffix=".jsp"/>
 

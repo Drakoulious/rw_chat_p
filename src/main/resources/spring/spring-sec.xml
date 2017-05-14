@@ -7,11 +7,13 @@
 	http://www.springframework.org/schema/security/spring-security.xsd">
 
     <http pattern="/resources/**" security="none"/>
-    <http use-expressions="true" name="restSecurityFilterChain">
+    <http>
         <csrf disabled="true"/>
         <intercept-url pattern="/login" access="permitAll"/>
         <intercept-url pattern="/console" access="isAuthenticated()"/>
         <intercept-url pattern="/console/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/ajax" access="isAuthenticated()" />
+        <intercept-url pattern="/ajax/**" access="isAuthenticated()" />
         <form-login login-page="/login" default-target-url="/console"
                     authentication-failure-url="/login?error=true"
                     login-processing-url="/spring_security_check"/>

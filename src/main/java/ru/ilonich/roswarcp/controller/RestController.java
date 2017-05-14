@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.ilonich.roswarcp.client.Authentificator;
 import ru.ilonich.roswarcp.client.CurrentState;
@@ -12,11 +11,8 @@ import ru.ilonich.roswarcp.repo.RawSqlExecutor;
 
 import java.util.concurrent.Callable;
 
-/**
- * Created by Илоныч on 28.04.2017.
- */
 @org.springframework.web.bind.annotation.RestController
-@RequestMapping(value = "/rest", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/ajax", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RestController {
     @Autowired
     RawSqlExecutor rawSqlExecutor;
