@@ -8,7 +8,7 @@
 
     <http pattern="/resources/**" security="none"/>
     <http>
-        <csrf disabled="true"/>
+        <csrf disabled="false"/>
         <intercept-url pattern="/login" access="permitAll"/>
         <intercept-url pattern="/console" access="isAuthenticated()"/>
         <intercept-url pattern="/console/**" access="isAuthenticated()"/>

@@ -5,6 +5,8 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
 </head>
 
 <body>
@@ -35,7 +37,10 @@
 <button onclick="tryOn()">Вкл парсер</button>
 <button onclick="tryOff()">Выкл парсер</button>
 <br>
-<a href="console/messages.xls">Скачать</a>
+<br>
+
+<a href="console/messages.xls">Таблица сообщений в excel</a>
+
 <br>
 <br>
 <br><label>SQL-команда:</label>
@@ -63,6 +68,11 @@
 <script type="text/javascript">
 
     $(document).ready(function() {
+        var token = $("meta[name='_csrf']").attr("content");
+        var header = $("meta[name='_csrf_header']").attr("content");
+        $(document).ajaxSend(function(e, xhr, options) {
+            xhr.setRequestHeader(header, token);
+        });
         getLogn();
         getStatus();
     });

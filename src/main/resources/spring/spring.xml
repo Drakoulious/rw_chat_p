@@ -29,7 +29,6 @@
 
     <jdbc:initialize-database data-source="dataSource" enabled="true">
         <jdbc:script encoding="utf-8" location="classpath:db/init.sql"/>
-        <jdbc:script encoding="utf-8" location="classpath:db/roswar_public_system_messages.sql"/>
     </jdbc:initialize-database>
 
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
