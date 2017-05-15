@@ -11,7 +11,7 @@ public interface CheckedProfileMapper {
     @Transactional
     @Insert({"INSERT INTO checked_profiles",
             "(message_id, player_id, gift_data_id, date) VALUES",
-            "(#{cp.playerId}, #{cp.triggerSysMesId}, #{cp.lastPrizeDataId}, #{cp.lastPrizeDate})",
+            "(#{cp.triggerSysMesId}, #{cp.playerId}, #{cp.lastPrizeDataId}, #{cp.lastPrizeDate})",
             "ON CONFLICT (message_id) DO NOTHING"})
     void save(@Param("cp") CheckedProfile cp);
 }

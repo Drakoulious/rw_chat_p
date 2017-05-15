@@ -16,6 +16,7 @@ import ru.ilonich.roswarcp.repo.MessageMapper;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -73,8 +74,8 @@ public class GetAndSaveSystemMessagesTask {
             Matcher matcher = GIFT_RECEIVED_PATTERN.matcher(el.attr("title"));
             if (matcher.find())
             {
-                Timestamp lastPrizeDate = Timestamp.valueOf(LocalDateTime.parse(String.format("%sT%s", matcher.group(1), matcher.group(2)),
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy'T'HH:mm")));
+                Timestamp lastPrizeDate = Timestamp.from(LocalDateTime.parse(String.format("%sT%s", matcher.group(1), matcher.group(2)),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy'T'HH:mm")).toInstant(ZoneOffset.MIN));
                 cpMapper.save(new CheckedProfile(trigger.getPlayerId(), trigger.getId(), lastPrizeDataId, lastPrizeDate));
             }
         } catch (IOException e){
