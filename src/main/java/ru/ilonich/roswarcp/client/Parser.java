@@ -6,11 +6,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import ru.ilonich.roswarcp.model.CheckedProfile;
 import ru.ilonich.roswarcp.model.Message;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -90,14 +93,12 @@ public final class Parser {
     }
 
     private static ChatMessagesRequest buildChatMessagesRequest() {
-        try {
+        String cookiesValue = CurrentState.getCookiesValue();
+        if (cookiesValue != null) {
             return new ChatMessagesRequest(CurrentState.getLastMessageId(),
-                    CurrentState.getLastMessageType(), CurrentState.getCookiesValue());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            CurrentState.setStatus(CurrentState.State.BAD_RESULT);
-            CurrentState.setLogin(CurrentState.NO_LOGIN);
+                    CurrentState.getLastMessageType(), cookiesValue);
+        } else {
+            return null;
         }
-        return null;
     }
 }

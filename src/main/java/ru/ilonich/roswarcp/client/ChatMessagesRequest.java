@@ -18,7 +18,7 @@ import java.util.List;
 
 public class ChatMessagesRequest {
     private static final String CHAT_URL = "http://www.roswar.ru/chat/get-messages/";
-    static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     private static final List<BasicHeader> HEADERS = Arrays.asList(
             new BasicHeader("Accept", "application/json, text/javascript, */*; q=0.01"),
             new BasicHeader("Accept-Encoding", "gzip, deflate"),

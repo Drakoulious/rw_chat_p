@@ -89,11 +89,13 @@ public final class CurrentState {
         return lastMessageType.compareAndSet(oldType, newType);
     }
 
-    static String getCookiesValue() throws Exception {
+    public static String getCookiesValue() {
         if (cookies.get() !=null) {
             return cookies.get().getCookieString();
         } else {
-            throw new Exception("Cookie was not setted");
+            CurrentState.setStatus(CurrentState.State.BAD_RESULT);
+            CurrentState.setLogin(CurrentState.NO_LOGIN);
+            return null;
         }
     }
 

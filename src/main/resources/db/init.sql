@@ -23,6 +23,14 @@ CREATE TABLE IF NOT EXISTS system_messages
   item_count INTEGER NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS checked_profiles
+(
+  message_id INTEGER PRIMARY KEY,
+  player_id INTEGER NOT NULL,
+  gift_data_id INTEGER NOT NULL,
+  date TIMESTAMP NOT NULL
+);
+
 INSERT INTO user_one
 (login, password)
   SELECT 'admin', '$2a$10$e0Q7VcxsdILygTuKl7wRHechi2msU8QFQpYXxhpN/c2bXvsNFjiWy'

@@ -44,7 +44,7 @@
 <br>
 <br>
 <br><label>SQL-команда:</label>
-<input type="text" placeholder="SQL" value="SELECT * FROM system_messages" name="sql">
+<input type="text" placeholder="SQL" value="SELECT * FROM checked_profiles" name="sql">
 <button onclick="sendSql()">Выполнить</button>
 
 <br>

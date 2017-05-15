@@ -54,11 +54,23 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
+    <bean id="checkedProfileMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="ru.ilonich.roswarcp.repo.CheckedProfileMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
     <context:component-scan base-package="ru.ilonich.roswarcp.service" />
     <context:component-scan base-package="ru.ilonich.roswarcp.repo" />
 
     <bean id="messageSaver" class="ru.ilonich.roswarcp.task.GetAndSaveSystemMessagesTask">
-        <constructor-arg ref="messageMapper" />
+        <property name="messageMapper" ref="messageMapper"/>
+        <property name="cpMapper" ref="checkedProfileMapper"/>
+        <property name="triggerItems">
+            <list value-type="java.lang.String">
+                <value>рог изобилия</value>
+                <value>напильник</value>
+            </list>
+        </property>
     </bean>
 
     <task:scheduled-tasks scheduler="myScheduler">
