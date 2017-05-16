@@ -21,7 +21,7 @@ public class RawSqlExecutorImpl implements RawSqlExecutor {
         try{
             conn = dataSource.getConnection();
             conn.setAutoCommit(true);
-            conn.setReadOnly(true);
+            //conn.setReadOnly(true); чё париться то лол (на самом деле хз)
             stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = stmt.executeQuery(sql);
             StringBuilder builder = new StringBuilder();
