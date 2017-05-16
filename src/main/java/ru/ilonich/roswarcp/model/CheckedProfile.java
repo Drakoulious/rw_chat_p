@@ -8,15 +8,17 @@ public class CheckedProfile {
     private int triggerSysMesId;
     private int lastPrizeDataId;
     private Timestamp lastPrizeDate;
+    private Timestamp triggerSysMesDate;
 
     public CheckedProfile() {
     }
 
-    public CheckedProfile(int playerId, int triggerSysMesId, int lastPrizeDataId, Timestamp lastPrizeDate) {
+    public CheckedProfile(int playerId, int triggerSysMesId, int lastPrizeDataId, Timestamp lastPrizeDate, Timestamp triggerSysMesDate) {
         this.playerId = playerId;
         this.triggerSysMesId = triggerSysMesId;
         this.lastPrizeDataId = lastPrizeDataId;
         this.lastPrizeDate = lastPrizeDate;
+        this.triggerSysMesDate = triggerSysMesDate;
     }
 
     public int getPlayerId() {
@@ -53,7 +55,15 @@ public class CheckedProfile {
 
     @Override
     public String toString() {
-        return String.format("CheckedProfile: playerId=%d, triggerSysMesId=%d, lastPrizeDataId=%s, lastPrizeDate=%s",
-                playerId, triggerSysMesId, lastPrizeDataId, lastPrizeDate.toString());
+        return String.format("CheckedProfile: playerId=%d, triggerSysMesId=%d, lastPrizeDataId=%s, lastPrizeDate=%s, triggerSysMesDate=%s",
+                playerId, triggerSysMesId, lastPrizeDataId, lastPrizeDate.toString(), triggerSysMesDate.toString());
+    }
+
+    public Timestamp getTriggerSysMesDate() {
+        return triggerSysMesDate;
+    }
+
+    public void setTriggerSysMesDate(Timestamp triggerSysMesDate) {
+        this.triggerSysMesDate = triggerSysMesDate;
     }
 }

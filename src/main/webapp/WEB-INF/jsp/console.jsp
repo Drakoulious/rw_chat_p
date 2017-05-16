@@ -37,15 +37,15 @@
 <button onclick="tryOn()">Вкл парсер</button>
 <button onclick="tryOff()">Выкл парсер</button>
 <br>
-<br>
-
-<a href="console/messages.xls">Таблица сообщений в excel</a>
 
 <br>
 <br>
 <br><label>SQL-команда:</label>
-<input type="text" placeholder="SQL" value="SELECT * FROM checked_profiles" name="sql">
-<button onclick="sendSql()">Выполнить</button>
+<form:form method="post">
+    <input type="text" placeholder="SQL" value="SELECT * FROM checked_profiles" name="sql">
+    <input type="submit" value="Вывести в excel">
+    <button type="button" onclick="sendSql(); return false">Выполнить</button>
+</form:form>
 
 <br>
 Вывод:

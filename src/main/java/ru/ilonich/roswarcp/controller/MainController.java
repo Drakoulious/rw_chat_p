@@ -3,9 +3,10 @@ package ru.ilonich.roswarcp.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.ilonich.roswarcp.model.Message;
-import ru.ilonich.roswarcp.repo.MessageMapper;
+import ru.ilonich.roswarcp.repo.RawSqlExecutor;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class MainController {
 
     @Autowired
-    private MessageMapper messageMapper;
+    private RawSqlExecutor rawSqlExecutor;
 
     @GetMapping("/")
     public String root() {
@@ -30,9 +31,9 @@ public class MainController {
         return "console";
     }
 
-    @GetMapping(value = "/console/messages.xls")
-    public ModelAndView downloadExcel() {
-        List<Message> listBooks = messageMapper.getMessages();
-        return new ModelAndView("excelView", "messages", listBooks);
+    @PostMapping(value = "/console")
+    public ModelAndView downloadExcel(@RequestParam("sql") String sql) {
+        List<List<String>> result = rawSqlExecutor.executeQuery(sql);
+        return new ModelAndView("excelView", "result", result);
     }
 }

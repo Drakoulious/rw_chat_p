@@ -76,7 +76,7 @@ public class GetAndSaveSystemMessagesTask {
             {
                 Timestamp lastPrizeDate = Timestamp.from(LocalDateTime.parse(String.format("%sT%s", matcher.group(1), matcher.group(2)),
                         DateTimeFormatter.ofPattern("dd.MM.yyyy'T'HH:mm")).toInstant(ZoneOffset.MIN));
-                cpMapper.save(new CheckedProfile(trigger.getPlayerId(), trigger.getId(), lastPrizeDataId, lastPrizeDate));
+                cpMapper.save(new CheckedProfile(trigger.getPlayerId(), trigger.getId(), lastPrizeDataId, lastPrizeDate, trigger.getTime()));
             }
         } catch (IOException e){
             LOG.warn("Failed to check player profile #%d ; IOException: %s", trigger.getPlayerId(), e.getMessage());

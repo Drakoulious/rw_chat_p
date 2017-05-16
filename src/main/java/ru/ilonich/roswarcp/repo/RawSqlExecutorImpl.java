@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class RawSqlExecutorImpl implements RawSqlExecutor {
@@ -54,6 +57,53 @@ public class RawSqlExecutorImpl implements RawSqlExecutor {
                     conn.close();
             }catch(SQLException se){
                 result = se.getMessage();
+            }
+        }
+        return result;
+    }
+
+    public List<List<String>> executeQuery(String sql){
+        Connection conn = null;
+        Statement stmt = null;
+        List<List<String>> result = new ArrayList<>();
+        try{
+            conn = dataSource.getConnection();
+            conn.setAutoCommit(true);
+            conn.setReadOnly(true);
+            stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            ResultSet rs = stmt.executeQuery(sql);
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            List<String> head = new ArrayList<>();
+            for (int i = 1; i <= columnCount; i++){
+                head.add(metaData.getColumnName(i));
+            }
+            result.add(head);
+
+            while (rs.next()) {
+                List<String> row = new ArrayList<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    row.add(rs.getString(i));
+                }
+                result.add(row);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch(Exception e){
+            result.add(Collections.singletonList(e.getMessage()));
+        }finally {
+            try{
+                if(stmt!=null)
+                    stmt.close();
+            }catch(SQLException se2){
+                result.add(Collections.singletonList(se2.getMessage()));
+            }
+            try{
+                if(conn!=null)
+                    conn.close();
+            }catch(SQLException se){
+                result.add(Collections.singletonList(se.getMessage()));
             }
         }
         return result;
