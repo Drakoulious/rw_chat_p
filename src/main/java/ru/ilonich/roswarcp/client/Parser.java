@@ -69,7 +69,7 @@ public final class Parser {
 
     private static List<Message> findSystemMessages(List<Message> messages) {
         return messages.stream()
-                .filter( m -> m.getType().equals(SYSTEM_TYPE) && m.getLinkedPlayerId() == 131716) //убрать сообщения о банах и боях, только газетчик
+                .filter( m -> m.getType().equals(SYSTEM_TYPE) && m.getPlayerId() == 131716) //убрать сообщения о банах и боях, только газетчик пишет нужное
                 .map(reformatSystemMessage)
                 .collect(Collectors.toList());
     }

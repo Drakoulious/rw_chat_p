@@ -74,7 +74,7 @@
     </bean>
 
     <task:scheduled-tasks scheduler="myScheduler">
-        <task:scheduled ref="messageSaver" method="task" fixed-delay="30000"/>
+        <task:scheduled ref="messageSaver" method="task" fixed-delay="15000"/>
     </task:scheduled-tasks>
-    <task:scheduler id="myScheduler" pool-size="2" />
+    <task:scheduler id="myScheduler" pool-size="3" />
 </beans>

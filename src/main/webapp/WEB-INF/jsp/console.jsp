@@ -55,9 +55,9 @@
 <style>
     input[type='text'] {
         width: 50%;
-        height: 50px;
+        height: 60px;
         padding: 12px 20px;
-        box-sizing: border-box;
+        box-sizing: content-box;
         border: 2px solid #ccc;
         border-radius: 4px;
         background-color: #f8f8f8;
