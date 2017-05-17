@@ -10,6 +10,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ChatMessagesRequest {
+    private Logger LOG = LoggerFactory.getLogger(ChatMessagesRequest.class);
     private static final String CHAT_URL = "http://www.roswar.ru/chat/get-messages/";
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36";
     private static final List<BasicHeader> HEADERS = Arrays.asList(
@@ -60,6 +63,7 @@ public class ChatMessagesRequest {
         } catch (IOException e) {
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
             CurrentState.setLogin(CurrentState.NO_LOGIN);
+            LOG.warn("Get-messages request failed", e);
         }
         return result;
     }

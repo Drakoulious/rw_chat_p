@@ -19,7 +19,7 @@
                     login-processing-url="/spring_security_check"/>
         <logout logout-success-url="/login"/>
     </http>
-    <beans:bean class="ru.ilonich.roswarcp.client.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
+    <beans:bean class="ru.ilonich.roswarcp.util.PasswordUtil" id="passwordEncoder" factory-method="getPasswordEncoder"/>
     <authentication-manager>
         <authentication-provider user-service-ref="userService">
             <password-encoder ref="passwordEncoder"/>

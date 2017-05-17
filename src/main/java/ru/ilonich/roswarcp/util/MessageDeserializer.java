@@ -1,4 +1,4 @@
-package ru.ilonich.roswarcp.client;
+package ru.ilonich.roswarcp.util;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-class MessageDeserializer extends StdDeserializer<List<Message>> {
+public class MessageDeserializer extends StdDeserializer<List<Message>> {
 
-    MessageDeserializer(){
+    public MessageDeserializer(){
         this(null);
     }
 
-    MessageDeserializer(Class<?> vc) {
+    private MessageDeserializer(Class<?> vc) {
         super(vc);
     }
 

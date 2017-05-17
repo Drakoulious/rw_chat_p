@@ -6,18 +6,19 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import ru.ilonich.roswarcp.model.CheckedProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.ilonich.roswarcp.model.Message;
+import ru.ilonich.roswarcp.util.MessageDeserializer;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public final class Parser {
+    private static Logger LOG = LoggerFactory.getLogger(Parser.class);
 
     private static final ObjectMapper mapper;
     private static final String SYSTEM_TYPE = "system";
@@ -87,7 +88,7 @@ public final class Parser {
         try {
             return mapper.readValue(json, List.class);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            LOG.warn("Failed to parse messages json", e);
         }
         return Collections.EMPTY_LIST;
     }

@@ -11,6 +11,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class Authentificator {
+    private static Logger LOG = LoggerFactory.getLogger(Authentificator.class);
 
     private static final String ROSWAR_URL = "http://www.roswar.ru";
 
@@ -59,10 +62,12 @@ public final class Authentificator {
         } catch (IOException e){
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
             CurrentState.setLogin(CurrentState.NO_LOGIN);
+            LOG.warn("Failed to parse auth info", e);
             return e.getMessage();
         } catch (Exception e){
             CurrentState.setStatus(CurrentState.State.BAD_RESULT);
             CurrentState.setLogin(CurrentState.NO_LOGIN);
+            LOG.warn("Failed to request auth info", e);
             return e.getMessage();
         }
         return "ok";
