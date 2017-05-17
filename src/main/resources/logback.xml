@@ -2,8 +2,6 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>app/roswar.log</file>
         <append>false</append>
-        <!-- set immediateFlush to false for much higher logging throughput -->
-        <immediateFlush>true</immediateFlush>
         <encoder>
             <pattern>%date{dd MMM;HH:mm:ss} %level %logger{35} | %msg | %ex{full} [%thread]%n</pattern>
         </encoder>
