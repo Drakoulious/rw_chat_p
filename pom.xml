@@ -22,7 +22,7 @@
     </parent>
     <build>
         <finalName>roswarcp</finalName>
-        <defaultGoal>package</defaultGoal>
+        <defaultGoal>install</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
