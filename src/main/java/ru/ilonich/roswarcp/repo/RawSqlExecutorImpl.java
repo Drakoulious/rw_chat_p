@@ -2,6 +2,7 @@ package ru.ilonich.roswarcp.repo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@Component
+@Component("rawSqlExecutor")
 public class RawSqlExecutorImpl implements RawSqlExecutor {
     @Autowired
     DataSource dataSource;
@@ -69,7 +70,7 @@ public class RawSqlExecutorImpl implements RawSqlExecutor {
         try{
             conn = dataSource.getConnection();
             conn.setAutoCommit(true);
-            conn.setReadOnly(true);
+            //conn.setReadOnly(true);
             stmt = conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
             ResultSet rs = stmt.executeQuery(sql);
             ResultSetMetaData metaData = rs.getMetaData();

@@ -59,9 +59,14 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory" />
     </bean>
 
+    <bean id="giftsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="ru.ilonich.roswarcp.repo.GiftsMapper" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactory" />
+    </bean>
+
     <context:component-scan base-package="ru.ilonich.roswarcp.service" />
     <context:component-scan base-package="ru.ilonich.roswarcp.repo" />
-
+<!--
     <bean id="messageSaver" class="ru.ilonich.roswarcp.task.GetAndSaveSystemMessagesTask">
         <property name="messageMapper" ref="messageMapper"/>
         <property name="cpMapper" ref="checkedProfileMapper"/>
@@ -72,9 +77,25 @@
             </list>
         </property>
     </bean>
+-->
+    <bean id="clanCheck" class="ru.ilonich.roswarcp.task.CheckClanPlayersTask">
+        <property name="giftsMapper" ref="giftsMapper"/>
+        <property name="rawSql" ref="rawSqlExecutor"/>
+        <property name="clansToScan">
+            <list value-type="java.lang.Integer">
+                <value>34</value>
+                <value>16</value>
+                <value>14</value>
+                <value>140</value>
+                <value>76</value>
+                <value>175</value>
+                <value>204</value>
+            </list>
+        </property>
+    </bean>
 
     <task:scheduled-tasks scheduler="myScheduler">
-        <task:scheduled ref="messageSaver" method="task" fixed-delay="20000"/>
+        <task:scheduled ref="clanCheck" method="task" fixed-delay="120000"/>
     </task:scheduled-tasks>
     <task:scheduler id="myScheduler" pool-size="3" />
 </beans>

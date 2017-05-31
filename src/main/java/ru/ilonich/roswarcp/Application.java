@@ -60,7 +60,7 @@ public class Application extends SpringBootServletInitializer {
     @Bean
     public EmbeddedServletContainerCustomizer containerCustomizer() {
         return (container -> {
-            container.setPort(Integer.valueOf(System.getenv("PORT")));
+            container.setPort(8080);
         });
     }
 

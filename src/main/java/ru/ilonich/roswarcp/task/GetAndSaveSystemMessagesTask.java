@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 
 public class GetAndSaveSystemMessagesTask {
 
-    private static final String PROFILE_URL = "http://www.roswar.ru/player/%d/";
-    private static final Map<String, String> HEADERS = new HashMap<>();
+    static final String PROFILE_URL = "http://www.roswar.ru/player/%d/";
+    static final Map<String, String> HEADERS = new HashMap<>();
     static {
         HEADERS.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         HEADERS.put("Accept-Encoding", "gzip, deflate, sdch");
@@ -35,7 +35,7 @@ public class GetAndSaveSystemMessagesTask {
         HEADERS.put("Connection", "keep-alive");
         HEADERS.put("Upgrade-Insecure-Requests", "1");
     }
-    private static final Pattern GIFT_RECEIVED_PATTERN = Pattern.compile("Подарен: (\\d{2}.\\d{2}.\\d{4})[\\s\\S]*(\\d{2}:\\d{2})[\\s\\S]*Годен до:");
+    public static final Pattern GIFT_RECEIVED_PATTERN = Pattern.compile("Подарен: (\\d{2}.\\d{2}.\\d{4})[\\s\\S]*(\\d{2}:\\d{2})[\\s\\S]*Годен до:");
 
     private Logger LOG = LoggerFactory.getLogger(GetAndSaveSystemMessagesTask.class);
 
