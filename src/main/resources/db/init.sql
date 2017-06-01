@@ -54,6 +54,8 @@ CREATE TABLE IF NOT EXISTS horns
   time TIMESTAMP
 );
 
+DROP TRIGGER IF EXISTS set_sum on may_gifts;
+
 CREATE OR REPLACE FUNCTION sum_horn_delta() RETURNS TRIGGER AS '
 DECLARE
   horn_delta INTEGER;
