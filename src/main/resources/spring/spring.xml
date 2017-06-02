@@ -16,7 +16,7 @@
     <tx:annotation-driven/>
 
     <bean class="java.net.URI" id="dbUrl">
-        <constructor-arg value="#{environment.getProperty('DATABASE_URL')}"/>
+        <constructor-arg value="postgres://olegz:123@localhost:5432/rw"/>
     </bean>
     <!--dokkur example: postgres://login:password@hostname:5432/databasename-->
     <bean id="dataSource"
@@ -81,17 +81,6 @@
     <bean id="clanCheck" class="ru.ilonich.roswarcp.task.CheckClanPlayersTask">
         <property name="giftsMapper" ref="giftsMapper"/>
         <property name="rawSql" ref="rawSqlExecutor"/>
-        <property name="clansToScan">
-            <list value-type="java.lang.Integer">
-                <value>34</value>
-                <value>16</value>
-                <value>14</value>
-                <value>140</value>
-                <value>76</value>
-                <value>175</value>
-                <value>204</value>
-            </list>
-        </property>
     </bean>
 
     <task:scheduled-tasks scheduler="myScheduler">

@@ -21,13 +21,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GetAndSaveSystemMessagesTask {
 
     static final String PROFILE_URL = "http://www.roswar.ru/player/%d/";
-    static final Map<String, String> HEADERS = new HashMap<>();
+    static final Map<String, String> HEADERS = new ConcurrentHashMap<>();
     static {
         HEADERS.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
         HEADERS.put("Accept-Encoding", "gzip, deflate, sdch");

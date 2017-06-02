@@ -46,6 +46,22 @@ CREATE TABLE IF NOT EXISTS may_gifts
   sum_delta INTEGER
 );
 
+DO '
+BEGIN
+  BEGIN
+    ALTER TABLE may_gifts ADD COLUMN small_count INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN medium_count INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN big_count INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN not_opened_count INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN small_count_p INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN medium_count_p INTEGER;
+    ALTER TABLE may_gifts ADD COLUMN big_count_p INTEGER;
+    EXCEPTION
+    WHEN duplicate_column THEN RAISE NOTICE ''skipped duplicate_column'';
+  END;
+END;
+' LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS horns
 (
   line_num SERIAL PRIMARY KEY,
