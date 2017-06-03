@@ -36,7 +36,7 @@ public class GetAndSaveSystemMessagesTask {
         HEADERS.put("Connection", "keep-alive");
         HEADERS.put("Upgrade-Insecure-Requests", "1");
     }
-    public static final Pattern GIFT_RECEIVED_PATTERN = Pattern.compile("Подарен: (\\d{2}.\\d{2}.\\d{4})[\\s\\S]*(\\d{2}:\\d{2})[\\s\\S]*Годен до:");
+    public static final Pattern GIFT_RECEIVED_PATTERN = Pattern.compile("Подарен: (\\d{2}).(\\d{2}).(\\d{4})[\\s\\S]*(\\d{2}):(\\d{2})[\\s\\S]*Годен до:");
 
     private Logger LOG = LoggerFactory.getLogger(GetAndSaveSystemMessagesTask.class);
 

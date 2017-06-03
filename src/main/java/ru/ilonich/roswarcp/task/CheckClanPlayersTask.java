@@ -214,8 +214,8 @@ public class CheckClanPlayersTask {
             Matcher matcher = GIFT_RECEIVED_PATTERN.matcher(firstMayGift.attr("title"));
             if (matcher.find())
             {
-                Timestamp lastPrizeDate = Timestamp.from(LocalDateTime.parse(String.format("%sT%s", matcher.group(1), matcher.group(2)),
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy'T'HH:mm")).toInstant(ZoneOffset.MIN));
+                Timestamp lastPrizeDate = Timestamp.valueOf(String.format("%s-%s-%s %s:%s:00", matcher.group(3), matcher.group(2), matcher.group(1),
+                        matcher.group(4), matcher.group(5)));
                 String sql = "INSERT INTO horns (player_id, data_id, time) VALUES (%d, %d, '%s')";
                 rawSql.executeDirectQuery(String.format(sql, hornOwnerId, lastPrizeDataId, lastPrizeDate.toString()));
                 return new HornInfo(hornOwnerId, lastPrizeDataId, lastPrizeDate);

@@ -16,7 +16,7 @@
     <tx:annotation-driven/>
 
     <bean class="java.net.URI" id="dbUrl">
-        <constructor-arg value="postgres://olegz:123@localhost:5432/rw"/>
+        <constructor-arg value="#{environment.getProperty('DATABASE_URL')}"/>
     </bean>
     <!--dokkur example: postgres://login:password@hostname:5432/databasename-->
     <bean id="dataSource"
