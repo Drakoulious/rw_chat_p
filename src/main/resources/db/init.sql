@@ -110,3 +110,10 @@ INSERT INTO user_one
     NOT EXISTS (
         SELECT login FROM user_one WHERE login = 'admin'
     );
+
+CREATE TABLE IF NOT EXISTS sql_commands
+(
+  line_num SERIAL PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  sql VARCHAR NOT NULL
+);

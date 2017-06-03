@@ -15,12 +15,10 @@ import ru.ilonich.roswarcp.repo.RawSqlExecutor;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -39,14 +37,17 @@ public class CheckClanPlayersTask {
     private GiftsMapper giftsMapper;
     private RawSqlExecutor rawSql;
     private List<Integer> playersToScan;
+    private static final List<Integer> PLAYERS_TO_REMOVE = new CopyOnWriteArrayList<>();
+    private static final AtomicInteger GENERAL_LAST_GIFT_ID = new AtomicInteger(0);
+    private static final Map<Integer, Integer> LAST_GIFTS_IDS = new ConcurrentHashMap<>(1000);
     private static final String BONUS_PAGE_URL = "http://www.roswar.ru/holiday/";
     private static final String CLAN_PAGE_URL = "http://www.roswar.ru/clan/%d/";
     private static final String RATING_PAGE_URL = "http://www.roswar.ru/rating/moneygrabbed/month/%d/";
 
     public void task(){
         if (CurrentState.getStatus() != CurrentState.State.ON) return;
+        LOG.info("Parsing...");
         long start = System.currentTimeMillis();
-        GiftsSnapshot snapshot = giftsMapper.getLast();
 
         int lastHornId = getLastHornId(); // смотрим id последнего рога в бд
         int hornOwnerId = getLuckyPlayerId(); //смотрим последнего счастливчика на сайте
@@ -54,69 +55,64 @@ public class CheckClanPlayersTask {
             HornInfo hornInfo = getLuckyPlayerHornInfo(hornOwnerId); // получим data-id предпологаемого рога (с записью новой строки в таблицу)
             lastHornId = hornInfo != null ? hornInfo.getDataId() : 0; //
         }
+        GiftsSnapshot lastSnapshot = giftsMapper.getLast();
+        lastSnapshot = lastSnapshot == null ? new GiftsSnapshot(0, lastHornId, Timestamp.from(Instant.now()),
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0) : lastSnapshot; //id последнего рога и нулевые значения на остальное, если в бд не было записи
+        GENERAL_LAST_GIFT_ID.set(lastSnapshot.getLastGiftId());
 
-        final GiftsSnapshot lastSnapshot = snapshot == null ? new GiftsSnapshot(0, lastHornId, Timestamp.from(Instant.now()),
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0) : snapshot; //id последнего рога и нулевые значения на остальное, если в бд не было записи
+        if (playersToScan == null){
+            playersToScan = new ArrayList<>(getTop1000PlayersIds());
+        }
+
+        //Non-parallel
+        //List<PlayerInventory> scanResult = playersToScan.stream().map(this::parsePlayerPage).collect(Collectors.toList());
+        Stream<PlayerInventory> stream = playersToScan.parallelStream().map(this::parsePlayerPage);
+        Callable<List<PlayerInventory>> task = () -> stream.collect(Collectors.toList());
+        ForkJoinPool forkJoinPool = new ForkJoinPool(4);
+        List<PlayerInventory> scanResult = null;
+        try {
+            scanResult = forkJoinPool.submit(task).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Brain parallelism exception", e);
+            scanResult = Collections.EMPTY_LIST;
+        }
+
+        List<PlayerGiftsInfo> parsed = scanResult.parallelStream()
+                .map(this::inspectInventory)
+                .collect(Collectors.toList());
+
+        List<Integer> newGifts = new ArrayList<>();
+        int smallGiftsCount = 0;
+        int mediumGiftsCount = 0;
+        int bigGiftsCount = 0;
+        int notOpenedGiftsCount = 0;
+        int _smallGiftsCount = 0;
+        int _mediumGiftsCount = 0;
+        int _bigGiftsCount = 0;
+        for (PlayerGiftsInfo info : parsed){
+            newGifts.addAll(info.getGiftIds());
+            smallGiftsCount += info.getSmallGiftsCount();
+            mediumGiftsCount += info.getMediumGiftsCount();
+            bigGiftsCount += info.getBigGiftsCount();
+            notOpenedGiftsCount += info.getNotOpenedGiftsCount();
+            _smallGiftsCount += info.get_smallGiftsCount();
+            _mediumGiftsCount += info.get_mediumGiftsCount();
+            _bigGiftsCount += info.get_bigGiftsCount();
+        }
 
         int countNew;
         int lastGiftId;
         int dataIdsDelta;
         long timeDelta;
         int hornDelta;
-        if (playersToScan == null){
-            playersToScan = new ArrayList<>(getTop1000PlayersIds());
-        }
-
-        int filter = lastSnapshot.getLastGiftId();
-        Stream<PlayerGiftsInfo> stream = playersToScan.parallelStream().map( id -> parseNewGiftsIdsFromPlayerPage(id, filter));
-        Callable<List<PlayerGiftsInfo>> task = () -> stream.collect(Collectors.toList());
-        ForkJoinPool forkJoinPool = new ForkJoinPool(4);
-        List<PlayerGiftsInfo> scanResult = null;
-        try {
-            scanResult = forkJoinPool.submit(task).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Brain parallelism exception", e);
-        }
-
-        //Non-parallel
-        //List<PlayerGiftsInfo> scanResult = playersToScan.stream().map(id -> parseNewGiftsIdsFromPlayerPage(id, filter)).collect(Collectors.toList());
-
-        List<Integer> playersToRemove = new ArrayList<>();
-        List<Integer> newGifts = new ArrayList<>();
-        AtomicInteger smallGiftsCount = new AtomicInteger(0);
-        AtomicInteger mediumGiftsCount = new AtomicInteger(0);
-        AtomicInteger bigGiftsCount = new AtomicInteger(0);
-        AtomicInteger notOpenedGiftsCount = new AtomicInteger(0);
-        AtomicInteger _smallGiftsCount = new AtomicInteger(0);
-        AtomicInteger _mediumGiftsCount = new AtomicInteger(0);
-        AtomicInteger _bigGiftsCount = new AtomicInteger(0);
-        scanResult.forEach(info -> {
-            if (!info.isSkip()) {
-                newGifts.addAll(info.getGiftIds());
-                smallGiftsCount.addAndGet(info.getSmallGiftsCount());
-                mediumGiftsCount.addAndGet(info.getMediumGiftsCount());
-                bigGiftsCount.addAndGet(info.getBigGiftsCount());
-                notOpenedGiftsCount.addAndGet(info.getNotOpenedGiftsCount());
-                _smallGiftsCount.addAndGet(info.get_smallGiftsCount());
-                _mediumGiftsCount.addAndGet(info.get_mediumGiftsCount());
-                _bigGiftsCount.addAndGet(info.get_bigGiftsCount());
-            } else {
-                playersToRemove.add(info.getPlayerId());
-            }
-        });
 
         countNew = newGifts.size();
-
         if (countNew == 0){ //если ничё нового в подарках
-            lastGiftId = lastSnapshot.getLastGiftId();
+            lastGiftId = GENERAL_LAST_GIFT_ID.get();
+            dataIdsDelta = 0;
         } else {
             lastGiftId = newGifts.stream().mapToInt(Integer::intValue).max().getAsInt();
-        }
-
-        if (lastSnapshot.getLastGiftId() == 0){
-            dataIdsDelta = lastGiftId - lastHornId;
-        } else {
-            dataIdsDelta = lastGiftId - lastSnapshot.getLastGiftId();
+            dataIdsDelta = lastGiftId - GENERAL_LAST_GIFT_ID.get();
         }
 
         hornDelta = lastGiftId - lastHornId;
@@ -124,19 +120,20 @@ public class CheckClanPlayersTask {
         timeDelta = currentSnapshotTime.getEpochSecond() - lastSnapshot.getTime().toInstant().getEpochSecond();
 
         giftsMapper.insertRow(new GiftsSnapshot(countNew, lastGiftId, Timestamp.from(currentSnapshotTime), dataIdsDelta, timeDelta, hornDelta,
-                smallGiftsCount.get(), mediumGiftsCount.get(), bigGiftsCount.get(), notOpenedGiftsCount.get(), _smallGiftsCount.get(), _mediumGiftsCount.get(), _bigGiftsCount.get()));
+                smallGiftsCount, mediumGiftsCount, bigGiftsCount, notOpenedGiftsCount, _smallGiftsCount, _mediumGiftsCount, _bigGiftsCount));
 
         long stop = System.currentTimeMillis();
         long parsingTime = stop - start;
 
-        LOG.info("\n Task executed: \n Last player ID={} with horn ID={} \n Previous nax gift ID={} new={} \n {} new gifts founded \n Time estimated: {} \n Players scanned: {} \n",
-                hornOwnerId, lastHornId, lastSnapshot.getLastGiftId(), lastGiftId, countNew, parsingTime, playersToScan.size());
+        LOG.info("\n Task executed: \n Last player ID={} with horn ID={} \n Previous max gift ID={}, new={} \n {} new gifts founded \n Time estimated: {} \n Players scanned: {} \n Saved last data-ids: {} \n",
+                hornOwnerId, lastHornId, lastSnapshot.getLastGiftId(), lastGiftId, countNew, parsingTime, playersToScan.size(), LAST_GIFTS_IDS.size());
 
-        playersToScan.removeAll(playersToRemove);
+        playersToScan.removeAll(PLAYERS_TO_REMOVE);
+        PLAYERS_TO_REMOVE.clear();
     }
 
-    @SuppressWarnings("unchecked")
-    private PlayerGiftsInfo parseNewGiftsIdsFromPlayerPage(int playerId, int idFilter) {
+
+    private PlayerInventory parsePlayerPage(int playerId) {
         try {
             HEADERS.put("Cookie", CurrentState.getCookiesValue());
             Document doc = Jsoup.connect(String.format(PROFILE_URL, playerId)).headers(HEADERS).userAgent(ChatMessagesRequest.USER_AGENT).get();
@@ -144,44 +141,71 @@ public class CheckClanPlayersTask {
             Elements mayGifts = playerGifts.select("img[src*=gift-may2017]");//только ивентовые гифты
             if (playerGifts.size() < 100){ //если меньше 100 штук и нет майских то исключаем
                 if (mayGifts.size() == 0){
-                    return new PlayerGiftsInfo(playerId, 0, 0, 0, Collections.EMPTY_LIST, 0, true, 0, 0, 0);
+                    return new PlayerInventory(playerId, null, true);
                 }
             }
-            AtomicInteger smallGiftsCount = new AtomicInteger(0);
-            AtomicInteger mediumGiftsCount = new AtomicInteger(0);
-            AtomicInteger bigGiftsCount = new AtomicInteger(0);
-            AtomicInteger _smallGiftsCount = new AtomicInteger(0);
-            AtomicInteger _mediumGiftsCount = new AtomicInteger(0);
-            AtomicInteger _bigGiftsCount = new AtomicInteger(0);
-            AtomicInteger notOpenedGiftsCount = new AtomicInteger(0);
-            List<Integer> gifts = Stream.of(mayGifts)
-                    .flatMap(elements -> elements.subList(0, elements.size()).stream())
-                    .filter(element -> Integer.parseInt(element.attr("data-id")) >= idFilter) //только новые
-                    .peek(element -> { String dataSt = element.attr("data-st");
-                        if (dataSt.equals("10033")) {
-                            smallGiftsCount.incrementAndGet();
-                        } else if (dataSt.equals("10034")) {
-                            mediumGiftsCount.incrementAndGet();
-                        } else if (dataSt.equals("10035")) {
-                            bigGiftsCount.incrementAndGet();
-                        } else if (dataSt.equals("10023")) {
-                            _smallGiftsCount.incrementAndGet();
-                        } else if (dataSt.equals("10024")) {
-                            _mediumGiftsCount.incrementAndGet();
-                        } else if (dataSt.equals("10025")) {
-                            _bigGiftsCount.incrementAndGet();
-                        }
-                        if (element.attr("data-unlocked").charAt(0) != '1'){
-                            notOpenedGiftsCount.incrementAndGet();
-                        }
-                    })
-                    .map(element -> Integer.valueOf(element.attr("data-id")))
-                    .collect(Collectors.toList());
-            return new PlayerGiftsInfo(playerId, smallGiftsCount.get(), mediumGiftsCount.get(), bigGiftsCount.get(), gifts, notOpenedGiftsCount.get(), false, _smallGiftsCount.get(), _mediumGiftsCount.get(), _bigGiftsCount.get());
+            return new PlayerInventory(playerId, mayGifts, false);
         } catch (IOException e){
             LOG.warn("Failed to check player id:{} gifts; IOException: {}", playerId, e.getMessage());
-            return new PlayerGiftsInfo(playerId, 0, 0, 0, Collections.EMPTY_LIST, 0, false, 0, 0, 0);
+            return new PlayerInventory(playerId, null, false);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private PlayerGiftsInfo inspectInventory(PlayerInventory inventory){
+        int idFilter = LAST_GIFTS_IDS.getOrDefault(inventory.getPlayerId(), GENERAL_LAST_GIFT_ID.get());
+        //LOG.trace("Switching was {}/{} \n", GENERAL_LAST_GIFT_ID.get(), idFilter);
+        AtomicInteger nextIdFilter = new AtomicInteger(0);
+        AtomicInteger smallGiftsCount = new AtomicInteger(0);
+        AtomicInteger mediumGiftsCount = new AtomicInteger(0);
+        AtomicInteger bigGiftsCount = new AtomicInteger(0);
+        AtomicInteger _smallGiftsCount = new AtomicInteger(0);
+        AtomicInteger _mediumGiftsCount = new AtomicInteger(0);
+        AtomicInteger _bigGiftsCount = new AtomicInteger(0);
+        AtomicInteger notOpenedGiftsCount = new AtomicInteger(0);
+        Elements gifts = inventory.getInventory();
+        if (gifts == null){
+            if (inventory.isSkip()){
+                PLAYERS_TO_REMOVE.add(inventory.getPlayerId());
+            }
+            return new PlayerGiftsInfo(inventory.getPlayerId(), 0, 0, 0, Collections.EMPTY_LIST, 0, 0, 0, 0);
+        }
+        List<Integer> newGifts = Stream.of(gifts)
+                .flatMap(elements -> elements.subList(0, elements.size()).stream())
+                .filter(element -> {
+                    int dataId = Integer.parseInt(element.attr("data-id"));
+                    if (dataId > nextIdFilter.get()) nextIdFilter.set(dataId);
+                    return dataId > idFilter; //только новые
+                })
+                .peek(element -> { String dataSt = element.attr("data-st");
+                    switch (dataSt) {
+                        case "10033":
+                            smallGiftsCount.incrementAndGet();
+                            break;
+                        case "10034":
+                            mediumGiftsCount.incrementAndGet();
+                            break;
+                        case "10035":
+                            bigGiftsCount.incrementAndGet();
+                            break;
+                        case "10023":
+                            _smallGiftsCount.incrementAndGet();
+                            break;
+                        case "10024":
+                            _mediumGiftsCount.incrementAndGet();
+                            break;
+                        case "10025":
+                            _bigGiftsCount.incrementAndGet();
+                            break;
+                    }
+                    if (element.attr("data-unlocked").charAt(0) != '1'){
+                        notOpenedGiftsCount.incrementAndGet();
+                    }
+                })
+                .map(element -> Integer.valueOf(element.attr("data-id")))
+                .collect(Collectors.toList());
+        LAST_GIFTS_IDS.put(inventory.getPlayerId(), nextIdFilter.get());
+        return new PlayerGiftsInfo(inventory.getPlayerId(), smallGiftsCount.get(), mediumGiftsCount.get(), bigGiftsCount.get(), newGifts, notOpenedGiftsCount.get(), _smallGiftsCount.get(), _mediumGiftsCount.get(), _bigGiftsCount.get());
     }
 
     private int getLastHornId() {
@@ -315,6 +339,26 @@ public class CheckClanPlayersTask {
         }
     }
 
+    private class PlayerInventory{
+        private int playerId;
+        private Elements inventory;
+        private boolean skip;
+        public PlayerInventory(int playerId, Elements inventory, boolean skip) {
+            this.playerId = playerId;
+            this.inventory = inventory;
+            this.skip = skip;
+        }
+        public int getPlayerId() {
+            return playerId;
+        }
+        public Elements getInventory() {
+            return inventory;
+        }
+        public boolean isSkip() {
+            return skip;
+        }
+    }
+
     private class PlayerGiftsInfo {
         private int playerId;
         private int smallGiftsCount;
@@ -322,19 +366,17 @@ public class CheckClanPlayersTask {
         private int bigGiftsCount;
         private List<Integer> giftIds;
         private int notOpenedGiftsCount;
-        private boolean skip;
         private int _smallGiftsCount;
         private int _mediumGiftsCount;
         private int _bigGiftsCount;
 
-        public PlayerGiftsInfo(int playerId, int smallGiftsCount, int mediumGiftsCount, int bigGiftsCount, List<Integer> giftIds, int notOpenedGiftsCount, boolean skip, int smallGiftsCount1, int mediumGiftsCount1, int bigGiftsCount1) {
+        public PlayerGiftsInfo(int playerId, int smallGiftsCount, int mediumGiftsCount, int bigGiftsCount, List<Integer> giftIds, int notOpenedGiftsCount, int smallGiftsCount1, int mediumGiftsCount1, int bigGiftsCount1) {
             this.playerId = playerId;
             this.smallGiftsCount = smallGiftsCount;
             this.mediumGiftsCount = mediumGiftsCount;
             this.bigGiftsCount = bigGiftsCount;
             this.giftIds = giftIds;
             this.notOpenedGiftsCount = notOpenedGiftsCount;
-            this.skip = skip;
             this._smallGiftsCount = smallGiftsCount1;
             this._mediumGiftsCount = mediumGiftsCount1;
             this._bigGiftsCount = bigGiftsCount1;
@@ -358,10 +400,6 @@ public class CheckClanPlayersTask {
 
         public int getPlayerId() {
             return playerId;
-        }
-
-        public boolean isSkip() {
-            return skip;
         }
 
         public int getNotOpenedGiftsCount() {
